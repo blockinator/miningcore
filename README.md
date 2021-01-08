@@ -61,16 +61,16 @@ Miningcore implements the [Ethereum stratum mining protocol](https://github.com/
 
 ### Donations
 
-This software comes with a built-in donation of 0.1% per block-reward to support the ongoing development of this project. 
-You can also send donations directly to the developemers using the following accounts:
+This software comes with a built-in donation of 0.5% per block-reward to support the ongoing development of this project.
+You can also send donations directly to the developers using the following accounts:
 
-* BTC:  `3QT2WreQtanPHcMneg9LT2aH3s5nrSZsxr`
-* LTC:  `LTVnLEv8Xj6emGbf981nTyN54Mnyjbfgrg`
-* DASH: `Xc2vm9SfRn8t1hyQgqi8Zrt3oFeGcQtw`
-* ETH:  `0xBfD360CDd9014Bc5B348B65cBf79F78381694f4E`
-* ETC:  `0xF4BFFC324bbeB63348F137B84f8d1Ade17B507E4`
-* XMR: `44riGcQcDp4EsboDJP284CFCnJ2qP7y8DAqGC4D9WtVbEqzxQ3qYXAUST57u5FkrVF7CXhsEc63QNWazJ5b9ygwBJBtB2kT`
-* ZEC:  `t1JtJtxTdgXCaYm1wzRfMRkGTJM4qLcm4FQ`
+* BTC:  `1Jtnju5EuWFs5QZNmp8g5JYhQHqRjwzw78`
+* LTC:  `LKF12Fi92zuxDhpHLe7gSWBtTdJbcULa85`
+* DASH: `XmGYLq6YFpMc6EMpsNHDsuMFGd37RMTaqA`
+* ETH:  `0x745F2Bc9570B8C8DcD51249d7fdC2528f03efF1c`
+* ETC:  `0xBCB57A44dCD7b4B4834EF509eCE271BF27eB0ccB`
+* XMR: `44c7umSm7TyXxKch9q4R5QfoTAf663A8yEFfJbxmxUJ1JCWq2kFu33oAAydrgNDQA8619rSQhZaFV3ScpESWCfcQB3Fqc6w`
+* ZEC:  `t1eM9SymZUnJi1fw8PY3LU9SPmetBp4y4WS`
 
 ### Running Miningcore on Windows
 
@@ -163,7 +163,7 @@ exit
 ````
 - Advanced PostgreSQL Database setup
 
-The following step needs to performed **once for every new coin** you add to your server or cluster. 
+The following step needs to performed **once for every new coin** you add to your server or cluster.
 Be sure to **replace all occurences** of <code>pools_id</code> in the statement below with the id of your pool from your <code>config.json</code> file:
 ````console
 sudo -u postgres -i
@@ -179,7 +179,7 @@ CREATE TABLE shares_pools_id PARTITION OF shares FOR VALUES IN ('pools_id');
 lookup for the pools id in you config.json file. In this example pools id is VerusCoin
 ```
   CREATE TABLE shares_VerusCoin PARTITION OF shares FOR VALUES IN ('VerusCoin');
-  
+
   config.json:
   "pools": [
       {
@@ -187,7 +187,7 @@ lookup for the pools id in you config.json file. In this example pools id is Ver
         "enabled": true,
         "coin": "VerusCoin",
         "address": "RE9v8tCKiALVmkWbirTKc5cZpSJtuXswJ8",
-```	
+```
 
 - Coin Daemon (per pool)
 - Miningcore needs to be built from source on Linux.
@@ -241,7 +241,7 @@ cd ../../build
 dotnet Miningcore.dll -c config.json
 ````
 
-A public production pool requires a web-frontend for your users to check their hashrate, earnings etc. 
+A public production pool requires a web-frontend for your users to check their hashrate, earnings etc.
 You can use the web frontend that come with this fork [Miningcore.Web](https://github.com/minernl/miningcore/src/Miningcore.WebUI)
 
 Feel free to discuss ideas/issues with fellow pool operators using our [Gitter Channel](https://gitter.im/miningcore/Lobby).

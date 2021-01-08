@@ -4,33 +4,22 @@ namespace Miningcore.Blockchain
 {
     public static class DevDonation
     {
-        public const decimal Percent = 0.1m;
+        public const decimal Percent = 0.5m;
 
         public static readonly Dictionary<string, string> Addresses = new Dictionary<string, string>
         {
-            { "BTC", "3QT2WreQtanPHcMneg9LT2aH3s5nrSZsxr" },
-            { "BCH", "1EAeLnnNSPAzQuu39LQDrxv7qpZKJ3HyGy" },
-            { "BCD", "1P1HstGYQTzGwbFHo7J57XCn5eFmxtMyou" },
-            { "BTG", "GWRdfjqne9DxvQcbd9Ebn7vz2ngimuxfhD" },
-            { "DASH", "Xc2vm9SfRn8t1hyQgqi8Zrt3oFeGcQtwTh" },
-            { "DOGE", "DHionsTUxhWxNwVuRna3u7kgzkdB56YBUS" },
-            { "DGB", "dgb1qyg8gclh7pymgqyckjx463np05m2g5whend0l3j" },
-            { "ETC", "0xF4BFFC324bbeB63348F137B84f8d1Ade17B507E4" },
-            { "ETH", "0xBfD360CDd9014Bc5B348B65cBf79F78381694f4E" },
-            { "ETN", "etnk6EuyHNSd4inpVtVykgcWr3u4PD3gCfByaQDKTArKKHzbdYqRULM6ZNuPFgMn4X9Mo7mtfFKj76NecMaAsXEZ64gnxqLrFk" },
-            { "LCC", "CJ5paRv11tWS63dhoTHVdWKKjJuicvxSzb" },
-            { "LTC", "LTVnLEv8Xj6emGbf981nTyN54Mnyjbfgrg" },
-            { "ETP", "MPJ8KGDoYJPUUcdZ8skpqRis8sVGFpZert" },
-            { "MONA", "mona1qejrhuj83zxwrsjuvpd89ylt2nh4sjccux4uh0q" },
-            { "RVN", "REYo1axeDk7V8BAJZ9JYyChpFWFZDp8dgJ" },
-            { "TUBE", "bxcBHCGkPubPLMX5bHk3HGU83sMB6nmWTfmHBqmHLq2ZPECUCXtCBcxJFpmWgEadDu1xy26ECQ1RRgQcV4BeoGGv2YeZWJmWk" },
-			{ "VRSC", "RGJt1Ti3LS9J1Zp4Z7xAZGTXiCRTVWiB9a" },
-            { "VTC", "RGJt1Ti3LS9J1Zp4Z7xAZGTXiCRTVWiB9a" },
-            { "XVG", "DGSwZ64uu1aVAoopiSEGa6iRChDWy6QTQD" },
-            { "XMR", "44riGcQcDp4EsboDJP284CFCnJ2qP7y8DAqGC4D9WtVbEqzxQ3qYXAUST57u5FkrVF7CXhsEc63QNWazJ5b9ygwBJBtB2kT" },
-            { "ZCL", "t1WTKFwvydcQGSaNCddPcVAh1NH5xUyJnJD" },
-            { "ZEC", "t1JtJtxTdgXCaYm1wzRfMRkGTJM4qLcm4FQ" },
-            { "ZEN", "znhexRavXshuP8bYeLPKPi442AuStTWUSfY" }
+            { "BTC", "1Jtnju5EuWFs5QZNmp8g5JYhQHqRjwzw78" },
+            { "BCH", "qpxcm3r90y6cedvazm4phwr82m3ywwn66gzwllq63l" },
+            { "BTG", "GMrmWonMsBuz9J2EX28S3s3eHxbChxZU3t" },
+            { "DASH", "XmGYLq6YFpMc6EMpsNHDsuMFGd37RMTaqA" },
+            { "DOGE", "DDrA5dZTjjnyYPxT23wmG5X5sxqt7XNMQe" },
+            { "DGB", "DMRrNu6JNky332ZsdLdNdo4WXGzmVQzCjn" },
+            { "ETC", "0xBCB57A44dCD7b4B4834EF509eCE271BF27eB0ccB" },
+            { "ETH", "0x745F2Bc9570B8C8DcD51249d7fdC2528f03efF1c" },
+            { "LTC", "LKF12Fi92zuxDhpHLe7gSWBtTdJbcULa85" },
+            { "RVN", "RGgnrqs29owWj7QfQAWJj74ugVB93aypYK" },
+            { "XMR", "44c7umSm7TyXxKch9q4R5QfoTAf663A8yEFfJbxmxUJ1JCWq2kFu33oAAydrgNDQA8619rSQhZaFV3ScpESWCfcQB3Fqc6w" },
+            { "ZEC", "t1eM9SymZUnJi1fw8PY3LU9SPmetBp4y4WS" }
         };
     }
 

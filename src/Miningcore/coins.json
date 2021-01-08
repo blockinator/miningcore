@@ -13,9 +13,9 @@
             "hash": "reverse",
             "args": [ { "hash": "sha256d" } ]
         },
-        "explorerBlockLink": "https://blockchain.info/block/$height$",
-        "explorerTxLink": "https://blockchain.info/tx/{0}",
-        "explorerAccountLink": "https://blockchain.info/address/{0}"
+        "explorerBlockLink": "https://www.blockchain.com/btc/block/$height$",
+        "explorerTxLink": "https://www.blockchain.com/btc/tx/{0}",
+        "explorerAccountLink": "https://www.blockchain.com/btc/address/{0}"
     },
     "bitcoin-cash": {
         "name": "Bitcoin Cash",
@@ -31,9 +31,45 @@
             "hash": "reverse",
             "args": [ { "hash": "sha256d" } ]
         },
-        "explorerBlockLink": "https://www.blocktrail.com/BCC/block/$height$",
-        "explorerTxLink": "https://www.blocktrail.com/BCC/tx/{0}",
-        "explorerAccountLink": "https://www.blocktrail.com/BCC/address/{0}"
+        "explorerBlockLink": "https://www.blockchain.com/bch/block/$height$",
+        "explorerTxLink": "https://www.blockchain.com/bch/tx/{0}",
+        "explorerAccountLink": "https://www.blockchain.com/bch/address/{0}"
+    },
+    "bitcoin-toiletpaper": {
+        "name": "Bitcoin Toiletpaper",
+        "symbol": "BTP",
+        "family": "bitcoin",
+        "coinbaseHasher": {
+            "hash": "sha256d"
+        },
+        "headerHasher": {
+            "hash": "sha256d"
+        },
+        "blockHasher": {
+            "hash": "reverse",
+            "args": [ { "hash": "sha256d" } ]
+        },
+        "explorerBlockLink": "https://explorer.bitcointoiletpaper.org/block/$height$",
+        "explorerTxLink": "https://explorer.bitcointoiletpaper.org/tx/{0}",
+        "explorerAccountLink": "https://explorer.bitcointoiletpaper.org/address/{0}"
+    },
+    "bitcoin-clutch": {
+        "name": "Bitcoin Clutch",
+        "symbol": "BCC",
+        "family": "bitcoin",
+        "coinbaseHasher": {
+            "hash": "sha256d"
+        },
+        "headerHasher": {
+            "hash": "sha256d"
+        },
+        "blockHasher": {
+            "hash": "reverse",
+            "args": [ { "hash": "sha256d" } ]
+        },
+        "explorerBlockLink": "https://explorer.bitcoinclutch.com/block/$height$",
+        "explorerTxLink": "https://explorer.bitcoinclutch.com/tx/{0}",
+        "explorerAccountLink": "https://explorer.bitcoinclutch.com/address/{0}"
     },
     "namecoin": {
         "name": "Namecoin",
@@ -99,6 +135,35 @@
         "explorerBlockLink": "https://chainz.cryptoid.info/ltc/block.dws?$height$.htm",
         "explorerTxLink": "https://chainz.cryptoid.info/ltc/tx.dws?{0}.htm",
         "explorerAccountLink": "https://chainz.cryptoid.info/ltc/address.dws?{0}.htm"
+    },
+    "bitcoin-tk": {
+        "name": "Bitcoin TK",
+        "symbol": "BITK",
+        "family": "bitcoin",
+        "coinbaseHasher": {
+            "hash": "sha256d"
+        },
+        "headerHasher": {
+            "hash": "scrypt",
+            "args": [ 1024, 1 ]
+        },
+        "blockHasher": {
+            "hash": "reverse",
+            "args": [ { "hash": "sha256d" } ]
+        },
+        "posBlockHasher": {
+            "hash": "reverse",
+            "args": [
+                {
+                    "hash": "scrypt",
+                    "args": [ 1024, 1 ]
+                }
+            ]
+        },
+        "shareMultiplier": 65536,
+        "explorerBlockLink": "https://explorer.bitcoin.tk/block/$height$",
+        "explorerTxLink": "https://explorer.bitcoin.tk/tx/{0}",
+        "explorerAccountLink": "https://explorer.bitcoin.tk/address/{0}"
     },
     "litecoin-cash": {
         "name": "Litecoin Cash",
@@ -779,7 +844,7 @@
         "explorerBlockLink": "https://www.blockseek.io/exo/block/$hash$",
         "explorerTxLink": "https://www.blockseek.io/exo/tx/{0}",
         "explorerAccountLink": "https://www.blockseek.io/exo/address/{0}"
-    },	
+    },
     "zcash": {
         "name": "ZCash",
         "symbol": "ZEC",
