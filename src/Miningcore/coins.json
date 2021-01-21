@@ -183,7 +183,7 @@
         "explorerTxLink": "https://chainz.cryptoid.info/lcc/tx.dws?{0}.htm",
         "explorerAccountLink": "https://chainz.cryptoid.info/lcc/address.dws?{0}.htm"
     },
-    "dogecoin,": {
+    "dogecoin": {
         "name": "Dogecoin,",
         "symbol": "DOGE",
         "family": "bitcoin",
