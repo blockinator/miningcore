@@ -7,8 +7,8 @@ using Autofac;
 using Miningcore.Blockchain.Bitcoin;
 using Miningcore.Blockchain.Bitcoin.DaemonResponses;
 using Miningcore.Blockchain.Equihash.Custom.BitcoinGold;
-using Miningcore.Blockchain.Equihash.Custom.Minexcoin;
 using Miningcore.Blockchain.Equihash.Custom.VerusCoin;
+using Miningcore.Blockchain.Equihash.Custom.Minexcoin;
 using Miningcore.Blockchain.Equihash.DaemonResponses;
 using Miningcore.Configuration;
 using Miningcore.Contracts;
@@ -95,12 +95,12 @@ namespace Miningcore.Blockchain.Equihash
             {
                 case "BTG":
                     return new BitcoinGoldJob();
+                
+                case "VRSC":
+                    return new VerusCoinJob();
 
                 case "MNX":
                     return new MinexcoinJob();
-
-                case "VRSC":
-                    return new VerusCoinJob();
             }
 
             return new EquihashJob();
@@ -112,8 +112,8 @@ namespace Miningcore.Blockchain.Equihash
 
             try
             {
-                if (forceUpdate)
-                    lastJobRebroadcast = clock.UtcNow;
+                if(forceUpdate)
+                    lastJobRebroadcast = clock.Now;
 
                 var response = string.IsNullOrEmpty(json) ?
                     await GetBlockTemplateAsync() :
@@ -146,21 +146,6 @@ namespace Miningcore.Blockchain.Equihash
 
                     lock(jobLock)
                     {
-                        if (isNew)
-                        {
-                            if (via != null)
-                                logger.Info(() => $"Detected new block {blockTemplate.Height} via {via}");
-                            else
-                                logger.Info(() => $"Detected new block {blockTemplate.Height}");
-
-                            // update stats
-                            BlockchainStats.LastNetworkBlockTime = clock.UtcNow;
-                            BlockchainStats.BlockHeight = blockTemplate.Height;
-                            BlockchainStats.NetworkDifficulty = job.Difficulty;
-                            BlockchainStats.NextNetworkTarget = blockTemplate.Target;
-                            BlockchainStats.NextNetworkBits = blockTemplate.Bits;
-                        }
-
                         validJobs.Insert(0, job);
 
                         // trim active jobs
@@ -176,7 +161,7 @@ namespace Miningcore.Blockchain.Equihash
                             logger.Info(() => $"Detected new block {blockTemplate.Height}");
 
                         // update stats
-                        BlockchainStats.LastNetworkBlockTime = clock.UtcNow;
+                        BlockchainStats.LastNetworkBlockTime = clock.Now;
                         BlockchainStats.BlockHeight = blockTemplate.Height;
                         BlockchainStats.NetworkDifficulty = job.Difficulty;
                         BlockchainStats.NextNetworkTarget = blockTemplate.Target;
@@ -284,7 +269,7 @@ namespace Miningcore.Blockchain.Equihash
             // extract worker/miner/payoutid
             var split = workerValue.Split('.');
             var minerName = split[0];
-            var workerName = split.Length > 1 ? split[1] : null;
+            var workerName = split.Length > 1 ? split[1] : "0";
 
             // validate & process
             var (share, blockHex) = job.ProcessShare(worker, extraNonce2, nTime, solution);
@@ -326,7 +311,7 @@ namespace Miningcore.Blockchain.Equihash
             share.Source = clusterConfig.ClusterName;
             share.NetworkDifficulty = job.Difficulty;
             share.Difficulty = share.Difficulty;
-            share.Created = clock.UtcNow;
+            share.Created = clock.Now;
 
             return share;
         }

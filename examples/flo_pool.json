@@ -7,12 +7,6 @@
     "logBaseDirectory": "",
     "perPoolLogFile": false
   },
-  "statistics": {
-	   "statsUpdateInterval": 60,
-	   "hashrateCalculationWindow": 5,
-	   "statsCleanupInterval": 48,
-	   "statsDBCleanupHistory": 365
-  },
   "banning": {
     "manager": "integrated",
     "banOnJunkReceive": true,
@@ -48,35 +42,15 @@
     "interval": 600,
     "shareRecoveryFile": "recovered-shares.txt"
   },
-  "api": {
-        "enabled": true,
-        "ssl": false,
-	    "tls": false,
-        "tlsPfxFile": "",
-        "listenAddress": "127.0.0.1",
-        "port": 4000,
-        "metricsIpWhitelist": ["127.0.0.1"],
-        "rateLimiting": {
-            "disabled": true,
-            "rules": [
-                {
-                    "Endpoint": "*",
-                    "Period": "60s",
-                    "Limit": 1000000
-                }
-            ],
-            "ipWhitelist": []
-        }
-  },
   "pools": [
     {
-      "id": "flo1",
+      "id": "flo",
       "enabled": true,
-      "coin": "flo",
-      "address": "",
+      "coin": "florincoin",
+      "address": "FC3d6JT1Z3uZvKVNWjKt3qN8PX8knhAU7d",
       "rewardRecipients": [
         {
-          "address": "",
+          "address": "FCH4uesFJADBGK85gW74Cqmka54dpZk4ZH",
           "percentage": 1.0
         }
       ],

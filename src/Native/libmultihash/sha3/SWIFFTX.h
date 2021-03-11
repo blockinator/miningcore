@@ -1,9 +1,25 @@
+///////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  SWIFFTX ANSI C OPTIMIZED 32BIT IMPLEMENTATION FOR NIST SHA-3 COMPETITION
+//
+//  SWIFFTX.h
+//
+//  October 2008
+//
+//	This file is the exact copy from the reference implementation.
+//
+///////////////////////////////////////////////////////////////////////////////////////////////
+#ifndef __SWIFFTX__
+#define __SWIFFTX__
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+
 // See the remarks concerning compatibility issues inside stdint.h.
 #include "stdint.h"
 #include "stdbool.h"
-
- typedef int swift_int16_t;
- typedef unsigned int swift_uint16_t;
+//#include "SHA3swift.h"
 
 // The size of SWIFFTX input in bytes.
 #define SWIFFTX_INPUT_BLOCK_SIZE 256
@@ -26,7 +42,9 @@
 //	 change transformation
 // - A: the A's coefficients to work with (since every SWIFFT in SWIFFTX uses different As).
 //   A single application of SWIFFT uses 64*m A's.
-void ComputeSingleSWIFFT(unsigned char *input, unsigned short m, unsigned char output[SWIFFTX_OUTPUT_BLOCK_SIZE], const swift_int16_t *a);
+void ComputeSingleSWIFFT(unsigned char *input, unsigned short m,
+					  	 unsigned char output[SWIFFTX_OUTPUT_BLOCK_SIZE],
+						 const swift_int16_t *a);
 
 // Computes the result of a single SWIFFTX operation.
 // NOTE: for simplicity we use 'ComputeSingleSWIFFT()' as a subroutine. This is only to show
@@ -49,3 +67,8 @@ void ComputeSingleSWIFFTX(unsigned char input[SWIFFTX_INPUT_BLOCK_SIZE],
 // You must call this function before doing SWIFFT/X, otherwise you will get zeroes everywhere.
 void InitializeSWIFFTX();
 
+#ifdef __cplusplus
+}
+#endif
+
+#endif // __SWIFFTX__

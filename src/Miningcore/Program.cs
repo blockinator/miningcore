@@ -1,3 +1,24 @@
+/*
+Copyright 2017 Coin Foundry (coinfoundry.org)
+Authors: Oliver Weichhold (oliver@weichhold.com)
+         Olaf Wasilewski (olaf.wasilewski@gmx.de)
+         
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+associated documentation files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial
+portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -371,29 +392,25 @@ namespace Miningcore
         private static void Logo()
         {
             Console.WriteLine($@"
- ███╗   ███╗██╗███╗   ██╗██╗███╗   ██╗ ██████╗  ██████╗ ██████╗ ██████╗ ███████╗
- ████╗ ████║██║████╗  ██║██║████╗  ██║██╔════╝ ██╔════╝██╔═══██╗██╔══██╗██╔════╝
- ██╔████╔██║██║██╔██╗ ██║██║██╔██╗ ██║██║  ███╗██║     ██║   ██║██████╔╝█████╗
- ██║╚██╔╝██║██║██║╚██╗██║██║██║╚██╗██║██║   ██║██║     ██║   ██║██╔══██╗██╔══╝
- ██║ ╚═╝ ██║██║██║ ╚████║██║██║ ╚████║╚██████╔╝╚██████╗╚██████╔╝██║  ██║███████╗
+ █████╗ ██╗     ██████╗ ██╗  ██╗ █████╗ ██╗  ██╗     ██████╗ ██████╗ ██████╗ ███████╗     ██╗    ██████╗ 
+██╔══██╗██║     ██╔══██╗██║  ██║██╔══██╗╚██╗██╔╝    ██╔════╝██╔═══██╗██╔══██╗██╔════╝    ███║   ██╔═████╗
+███████║██║     ██████╔╝███████║███████║ ╚███╔╝     ██║     ██║   ██║██████╔╝█████╗      ╚██║   ██║██╔██║
+██╔══██║██║     ██╔═══╝ ██╔══██║██╔══██║ ██╔██╗     ██║     ██║   ██║██╔══██╗██╔══╝       ██║   ████╔╝██║
+██║  ██║███████╗██║     ██║  ██║██║  ██║██╔╝ ██╗    ╚██████╗╚██████╔╝██║  ██║███████╗     ██║██╗╚██████╔╝
+╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝     ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝     ╚═╝╚═╝ ╚═════╝ 
+                                                                                                         
+                 __                         __         __                                __    __   
+     ____ ____  / /_   ________  ____ _____/ /_  __   / /_____     _______  ______ ___  / /_  / /__ 
+    / __ `/ _ \/ __/  / ___/ _ \/ __ `/ __  / / / /  / __/ __ \   / ___/ / / / __ `__ \/ __ \/ / _ \
+   / /_/ /  __/ /_   / /  /  __/ /_/ / /_/ / /_/ /  / /_/ /_/ /  / /  / /_/ / / / / / / /_/ / /  __/
+   \__, /\___/\__/  /_/   \___/\__,_/\__,_/\__, /   \__/\____/  /_/   \__,_/_/ /_/ /_/_.___/_/\___/ 
+  /____/                                  /____/                                                    
 ");
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine($" MININGCORE - making mining easy");
-            Console.WriteLine($" https://github.com/minernl/miningcore\n");
+            Console.WriteLine($" https://github.com/DirtyHarryDev/miningcore\n");
+            Console.WriteLine($" Please contribute to the development of the project by donating:\n");
+            Console.WriteLine($" BTC  - 1LUxudS3677Ka82KQKfdiiptzVbVZTYGa4");
+            Console.WriteLine($" LTC  - Lg7wUnYCgsLUTViDXYSb6vxdMEW8DMBC82");
             Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($" Part off all donation goes to the core developers");
-            Console.WriteLine($" If you want to donate to them yourself:\n");
-            Console.WriteLine($" BTC  - 1Jtnju5EuWFs5QZNmp8g5JYhQHqRjwzw78");
-            Console.WriteLine($" LTC  - LKF12Fi92zuxDhpHLe7gSWBtTdJbcULa85");
-            Console.WriteLine($" DASH - XmGYLq6YFpMc6EMpsNHDsuMFGd37RMTaqA");
-            Console.WriteLine($" ETH  - 0x745F2Bc9570B8C8DcD51249d7fdC2528f03efF1c");
-            Console.WriteLine($" ETC  - 0xBCB57A44dCD7b4B4834EF509eCE271BF27eB0ccB");
-            Console.WriteLine($" XLM  - GAJKP2MZMSQJSBAC532Y6ID4FJFPH427ECU6KWK5TL52KFPP5MG7GVKJ");
-            Console.WriteLine($" XMR  - 44c7umSm7TyXxKch9q4R5QfoTAf663A8yEFfJbxmxUJ1JCWq2kFu33oAAydrgNDQA8619rSQhZaFV3ScpESWCfcQB3Fqc6w");
-            Console.WriteLine($" ZEC  - t1eM9SymZUnJi1fw8PY3LU9SPmetBp4y4WS");
-            Console.WriteLine();
-            Console.ResetColor();
         }
 
         private static void ConfigureLogging()
@@ -696,13 +713,9 @@ namespace Miningcore
                 })
                 .ConfigureServices(services =>
                 {
-                    // Memory Cache
-                    services.AddMemoryCache();
-
                     // rate limiting
                     if(enableApiRateLimiting)
                     {
-
                         services.Configure<IpRateLimitOptions>(ConfigureIpRateLimitOptions);
                         services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
                         services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
@@ -717,32 +730,20 @@ namespace Miningcore
                     services.AddSingleton((IComponentContext) container);
                     services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-                    services.AddControllers()
+                    services.AddMvc()
                         .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
                         .AddControllersAsServices()
                         .AddNewtonsoftJson(options =>
                         {
                             options.SerializerSettings.Formatting = Formatting.Indented;
                         });
-
-                    // .ContractResolver = new DefaultContractResolver());
+                    services.AddMvc(option => option.EnableEndpointRouting = false);
 
                     // Gzip Compression
                     services.AddResponseCompression();
 
                     // Cors
-                    // ToDo: Test if Admin portal is working without .credentials()
-                    // .AllowAnyOrigin(_ => true)
-                    // .AllowCredentials()
-                    services.AddCors(options =>
-                    {
-                        options.AddPolicy("CorsPolicy",
-                            builder => builder.AllowAnyOrigin()
-                                              .AllowAnyMethod()
-                                              .AllowAnyHeader()
-                                          );
-                    }
-                    );
+                    services.AddCors();
 
                     // WebSockets
                     services.AddWebSocketManager();
@@ -758,16 +759,12 @@ namespace Miningcore
                     UseIpWhiteList(app, true, new[] { "/metrics" }, clusterConfig.Api?.MetricsIpWhitelist);
 
                     app.UseResponseCompression();
-                    app.UseCors("CorsPolicy");
+                    app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("x-total-count"));
                     app.UseWebSockets();
                     app.MapWebSocketManager("/notifications", app.ApplicationServices.GetService<WebSocketNotificationsRelay>());
                     app.UseMetricServer();
-                    //app.UseMvc();
-                    app.UseRouting();
-                    app.UseEndpoints(endpoints => {
-                        endpoints.MapDefaultControllerRoute();
-                        endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
-                    });
+
+                    app.UseMvc();
                 })
                  .UseKestrel(options =>
                 {

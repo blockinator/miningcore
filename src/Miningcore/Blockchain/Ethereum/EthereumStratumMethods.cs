@@ -1,6 +1,7 @@
 /*
 Copyright 2017 Coin Foundry (coinfoundry.org)
 Authors: Oliver Weichhold (oliver@weichhold.com)
+         Olaf Wasilewski (olaf.wasilewski@gmx.de)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -56,5 +57,10 @@ namespace Miningcore.Blockchain.Ethereum
         /// Used to subscribe to work from a server, required before all other communication.
         /// </summary>
         public const string ExtraNonceSubscribe = "mining.extranonce.subscribe";
+
+        public const string GetWork = "eth_getWork";
+        public const string SubmitLogin = "eth_submitLogin";
+        public const string SubmitHasrate = "eth_submitHashrate";
+        public const string SubmitWork = "eth_submitWork";
     }
 }

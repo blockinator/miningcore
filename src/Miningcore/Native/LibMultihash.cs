@@ -1,6 +1,7 @@
 /*
 Copyright 2017 Coin Foundry (coinfoundry.org)
 Authors: Oliver Weichhold (oliver@weichhold.com)
+         Olaf Wasilewski (olaf.wasilewski@gmx.de)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -52,6 +53,18 @@ namespace Miningcore.Native
         [DllImport("libmultihash", EntryPoint = "x25x_export", CallingConvention = CallingConvention.Cdecl)]
         public static extern int x25x(byte* input, void* output, uint inputLength);
 
+        [DllImport("libmultihash", EntryPoint = "yescrypt_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int yescrypt(byte* input, void* output, uint inputLength);
+        
+        [DllImport("libmultihash", EntryPoint = "yescryptR8_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int yescryptR8(byte* input, void* output, uint inputLength);
+        
+        [DllImport("libmultihash", EntryPoint = "yescryptR16_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int yescryptR16(byte* input, void* output, uint inputLength);
+        
+        [DllImport("libmultihash", EntryPoint = "yescryptR32_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int yescryptR32(byte* input, void* output, uint inputLength);
+        
         [DllImport("libmultihash", EntryPoint = "odocrypt_export", CallingConvention = CallingConvention.Cdecl)]
         public static extern int odocrypt(byte* input, void* output, uint inputLength, uint key);
 
@@ -61,8 +74,8 @@ namespace Miningcore.Native
         [DllImport("libmultihash", EntryPoint = "scryptn_export", CallingConvention = CallingConvention.Cdecl)]
         public static extern int scryptn(byte* input, void* output, uint nFactor, uint inputLength);
 
-        [DllImport("libmultihash", EntryPoint = "kezzak_export", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int kezzak(byte* input, void* output, uint inputLength);
+        [DllImport("libmultihash", EntryPoint = "keccak_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int keccak(byte* input, void* output, uint inputLength);
 
         [DllImport("libmultihash", EntryPoint = "bcrypt_export", CallingConvention = CallingConvention.Cdecl)]
         public static extern int bcrypt(byte* input, void* output, uint inputLength);
@@ -75,6 +88,9 @@ namespace Miningcore.Native
 
         [DllImport("libmultihash", EntryPoint = "groestl_myriad_export", CallingConvention = CallingConvention.Cdecl)]
         public static extern int groestl_myriad(byte* input, void* output, uint inputLength);
+
+        [DllImport("libmultihash", EntryPoint = "balloon_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int balloon(byte* input, void* output, uint inputLength);
 
         [DllImport("libmultihash", EntryPoint = "blake_export", CallingConvention = CallingConvention.Cdecl)]
         public static extern int blake(byte* input, void* output, uint inputLength);
@@ -115,6 +131,9 @@ namespace Miningcore.Native
         [DllImport("libmultihash", EntryPoint = "x16r_export", CallingConvention = CallingConvention.Cdecl)]
         public static extern int x16r(byte* input, void* output, uint inputLength);
 
+        [DllImport("libmultihash", EntryPoint = "x16rv2_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int x16rv2(byte* input, void* output, uint inputLength);
+
         [DllImport("libmultihash", EntryPoint = "x16s_export", CallingConvention = CallingConvention.Cdecl)]
         public static extern int x16s(byte* input, void* output, uint inputLength);
 
@@ -122,13 +141,67 @@ namespace Miningcore.Native
         public static extern int geek(byte* input, void* output, uint inputLength);
 
         [DllImport("libmultihash", EntryPoint = "lyra2re_export", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int lyra2re(byte* input, void* output);
+        public static extern int lyra2re(byte* input, void* output, uint inputLength);
 
         [DllImport("libmultihash", EntryPoint = "lyra2rev2_export", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int lyra2rev2(byte* input, void* output);
+        public static extern int lyra2rev2(byte* input, void* output, uint inputLength);
 
         [DllImport("libmultihash", EntryPoint = "lyra2rev3_export", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int lyra2rev3(byte* input, void* output);
+        public static extern int lyra2rev3(byte* input, void* output, uint inputLength);
+        
+        [DllImport("libmultihash", EntryPoint = "lyra2z_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int lyra2z(byte* input, void* output, uint inputLength);
+        
+        [DllImport("libmultihash", EntryPoint = "lyra2vc0ban_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int lyra2vc0ban(byte* input, void* output, uint inputLength);
+        
+        [DllImport("libmultihash", EntryPoint = "lyra2z330_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int lyra2z330(byte* input, void* output, uint inputLength);
+        
+        [DllImport("libmultihash", EntryPoint = "yespower_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int yespower(byte* input, void* output, uint inputLength);
+        
+        [DllImport("libmultihash", EntryPoint = "yespower_ic_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int yespower_ic(byte* input, void* output, uint inputLength);
+        
+        [DllImport("libmultihash", EntryPoint = "yespower_iots_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int yespower_iots(byte* input, void* output, uint inputLength);
+        
+        [DllImport("libmultihash", EntryPoint = "yespower_ltncg_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int yespower_ltncg(byte* input, void* output, uint inputLength);
+        
+        [DllImport("libmultihash", EntryPoint = "yespower_r16_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int yespower_r16(byte* input, void* output, uint inputLength);
+        
+        [DllImport("libmultihash", EntryPoint = "yespower_res_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int yespower_res(byte* input, void* output, uint inputLength);
+        
+        [DllImport("libmultihash", EntryPoint = "yespower_sugar_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int yespower_sugar(byte* input, void* output, uint inputLength);
+        
+        [DllImport("libmultihash", EntryPoint = "yespower_urx_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int yespower_urx(byte* input, void* output, uint inputLength);
+        
+        [DllImport("libmultihash", EntryPoint = "yespower_litb_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int yespower_litb(byte* input, void* output, uint inputLength);
+        
+        [DllImport("libmultihash", EntryPoint = "yespower_tide_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int yespower_tide(byte* input, void* output, uint inputLength);
+        
+        [DllImport("libmultihash", EntryPoint = "cpupower_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int cpupower(byte* input, void* output, uint inputLength);
+        
+        [DllImport("libmultihash", EntryPoint = "sha256csm_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int sha256csm(byte* input, void* output, uint inputLength);
+        
+        [DllImport("libmultihash", EntryPoint = "phi_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int phi(byte* input, void* output, uint inputLength);
+        
+        [DllImport("libmultihash", EntryPoint = "phi2_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int phi2(byte* input, void* output, uint inputLength);
+        
+        [DllImport("libmultihash", EntryPoint = "phi5_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int phi5(byte* input, void* output, uint inputLength);
 
         [DllImport("libmultihash", EntryPoint = "equihash_verify_200_9_export", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool equihash_verify_200_9(byte* header, int headerLength, byte* solution, int solutionLength, string personalization);
@@ -138,10 +211,10 @@ namespace Miningcore.Native
 
         [DllImport("libmultihash", EntryPoint = "equihash_verify_96_5_export", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool equihash_verify_96_5(byte* header, int headerLength, byte* solution, int solutionLength, string personalization);
-
-		[DllImport("libmultihash", EntryPoint = "verushash_export", CallingConvention = CallingConvention.Cdecl)]
+        
+        [DllImport("libmultihash", EntryPoint = "verushash_export", CallingConvention = CallingConvention.Cdecl)]
         public static extern int verushash2v2(byte* input, void* output, int inputLength);
-		
+
         [DllImport("libmultihash", EntryPoint = "sha3_256_export", CallingConvention = CallingConvention.Cdecl)]
         public static extern int sha3_256(byte* input, void* output, uint inputLength);
 

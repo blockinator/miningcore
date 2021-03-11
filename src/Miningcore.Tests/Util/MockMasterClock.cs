@@ -8,6 +8,5 @@ namespace Miningcore.Tests.Util
         public DateTime CurrentTime { get; set; }
 
         public DateTime Now => CurrentTime;
-        public DateTime UtcNow => DateTime.UtcNow;
     }
 }

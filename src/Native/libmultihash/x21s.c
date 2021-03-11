@@ -6,6 +6,7 @@
 #include "sha3/extra.h"
 #include "sha3/sph_blake.h"
 #include "sha3/sph_bmw.h"
+#include "sha3/sph_gost.h"
 #include "sha3/sph_groestl.h"
 #include "sha3/sph_jh.h"
 #include "sha3/sph_keccak.h"
@@ -23,7 +24,6 @@
 #include "sha3/sph_haval.h"
 #include "sha3/sph_tiger.h"
 #include "Lyra2.h"
-#include "sha3/gost_streebog.h"
 
 enum Algo {
 	BLAKE = 0,

@@ -22,18 +22,6 @@
 // Constants and static tables portion.
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
- typedef signed char swift_int8_t;
- typedef unsigned char swift_uint8_t;
-
- typedef int swift_int16_t;
- typedef unsigned int swift_uint16_t;
-
- typedef long swift_int32_t;
- typedef unsigned long swift_uint32_t;
-
- typedef long long swift_int64_t;
- typedef unsigned long long swift_uint64_t;
-
 // In SWIFFTX we work over Z_257, so this is the modulus and the arithmetic is performed modulo
 // this number.
 #define FIELD_SIZE 257

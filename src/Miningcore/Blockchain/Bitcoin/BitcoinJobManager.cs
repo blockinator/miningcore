@@ -1,6 +1,7 @@
 /*
 Copyright 2017 Coin Foundry (coinfoundry.org)
 Authors: Oliver Weichhold (oliver@weichhold.com)
+         Olaf Wasilewski (olaf.wasilewski@gmx.de)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -90,10 +91,12 @@ namespace Miningcore.Blockchain.Bitcoin
 
             try
             {
-                if (forceUpdate)
-                    lastJobRebroadcast = clock.UtcNow;
+                if(forceUpdate)
+                    lastJobRebroadcast = clock.Now;
 
-                var response = string.IsNullOrEmpty(json) ? await GetBlockTemplateAsync() : GetBlockTemplateFromJson(json);
+                var response = string.IsNullOrEmpty(json) ?
+                    await GetBlockTemplateAsync() :
+                    GetBlockTemplateFromJson(json);
 
                 // may happen if daemon is currently not connected to peers
                 if(response.Error != null)
@@ -120,25 +123,10 @@ namespace Miningcore.Blockchain.Bitcoin
                     job.Init(blockTemplate, NextJobId(),
                         poolConfig, extraPoolConfig, clusterConfig, clock, poolAddressDestination, network, isPoS,
                         ShareMultiplier, coin.CoinbaseHasherValue, coin.HeaderHasherValue,
-                        !isPoS ? coin.BlockHasherValue : coin.PoSBlockHasherValue ?? coin.BlockHasherValue);
+                        coin.BlockHasherValue);
 
                     lock(jobLock)
                     {
-                        if (isNew)
-                        {
-                            if (via != null)
-                                logger.Info(() => $"Detected new block {blockTemplate.Height} via {via}");
-                            else
-                                logger.Info(() => $"Detected new block {blockTemplate.Height}");
-
-                            // update stats
-                            BlockchainStats.LastNetworkBlockTime = clock.UtcNow;
-                            BlockchainStats.BlockHeight = blockTemplate.Height;
-                            BlockchainStats.NetworkDifficulty = job.Difficulty;
-                            BlockchainStats.NextNetworkTarget = blockTemplate.Target;
-                            BlockchainStats.NextNetworkBits = blockTemplate.Bits;
-                        }
-
                         validJobs.Insert(0, job);
 
                         // trim active jobs
@@ -154,7 +142,7 @@ namespace Miningcore.Blockchain.Bitcoin
                             logger.Info(() => $"Detected new block {blockTemplate.Height}");
 
                         // update stats
-                        BlockchainStats.LastNetworkBlockTime = clock.UtcNow;
+                        BlockchainStats.LastNetworkBlockTime = clock.Now;
                         BlockchainStats.BlockHeight = blockTemplate.Height;
                         BlockchainStats.NetworkDifficulty = job.Difficulty;
                         BlockchainStats.NextNetworkTarget = blockTemplate.Target;
@@ -253,7 +241,7 @@ namespace Miningcore.Blockchain.Bitcoin
             // extract worker/miner/payoutid
             var split = workerValue.Split('.');
             var minerName = split[0];
-            var workerName = split.Length > 1 ? split[1] : null;
+            var workerName = split.Length > 1 ? split[1] : "0";
 
             // validate & process
             var (share, blockHex) = job.ProcessShare(worker, extraNonce2, nTime, nonce, versionBits);
@@ -265,7 +253,7 @@ namespace Miningcore.Blockchain.Bitcoin
             share.Worker = workerName;
             share.UserAgent = context.UserAgent;
             share.Source = clusterConfig.ClusterName;
-            share.Created = clock.UtcNow;
+            share.Created = clock.Now;
 
             // if block candidate, submit & check if accepted by network
             if(share.IsBlockCandidate)

@@ -7,12 +7,6 @@
         "logBaseDirectory": "",
         "perPoolLogFile": false
     },
-    "statistics": {
-	    "statsUpdateInterval": 60,
-	    "hashrateCalculationWindow": 5,
-	    "statsCleanupInterval": 48,
-	    "statsDBCleanupHistory": 365
-    },
     "banning": {
         "manager": "integrated",
         "banOnJunkReceive": true,
@@ -48,34 +42,14 @@
         "interval": 600,
         "shareRecoveryFile": "recovered-shares.txt"
     },
-    "api": {
-        "enabled": true,
-        "ssl": false,
-	    "tls": false,
-        "tlsPfxFile": "",
-        "listenAddress": "127.0.0.1",
-        "port": 4000,
-        "metricsIpWhitelist": ["127.0.0.1"],
-        "rateLimiting": {
-            "disabled": true,
-            "rules": [
-                {
-                    "Endpoint": "*",
-                    "Period": "60s",
-                    "Limit": 1000000
-                }
-            ],
-            "ipWhitelist": []
-        }
-    },
     "pools": [{
-      "id": "dgb-scrypt-1",
+      "id": "dgb-scrypt",
       "enabled": true,
       "coin": "digibyte-scrypt",
-      "address": "dgb1qyg8gclh7pymgqyckjx463np05m2g5whend0l3j",
+      "address": "DAFtYMGVdNtqHJoBGg2xqZZwSuYAaEs2Bn",
       "rewardRecipients": [
         {
-          "address": "dgb1qyg8gclh7pymgqyckjx463np05m2g5whend0l3j",
+          "address": "DAFtYMGVdNtqHJoBGg2xqZZwSuYAaEs2Bn",
           "percentage": 1.0
         }
       ],

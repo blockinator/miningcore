@@ -67,7 +67,7 @@ namespace Miningcore.Api.Controllers
 
                     // enrich
                     result.TotalPaid = await cf.Run(con => statsRepo.GetTotalPoolPaymentsAsync(con, config.Id));
-                    var from = clock.UtcNow.AddDays(-1);
+                    var from = clock.Now.AddDays(-1);
 
                     result.TopMiners = (await cf.Run(con => statsRepo.PagePoolMinersByHashrateAsync(
                             con, config.Id, from, 0, 15)))
@@ -100,7 +100,7 @@ namespace Miningcore.Api.Controllers
             // enrich
             response.Pool.TotalPaid = await cf.Run(con => statsRepo.GetTotalPoolPaymentsAsync(con, pool.Id));
 
-            var from = clock.UtcNow.AddDays(-1);
+            var from = clock.Now.AddDays(-1);
 
             response.Pool.TopMiners = (await cf.Run(con => statsRepo.PagePoolMinersByHashrateAsync(
                     con, pool.Id, from, 0, 15)))
@@ -118,7 +118,7 @@ namespace Miningcore.Api.Controllers
             var pool = GetPool(poolId);
 
             // set range
-            var end = clock.UtcNow;
+            var end = clock.Now;
             DateTime start;
 
             switch(range)
@@ -153,7 +153,7 @@ namespace Miningcore.Api.Controllers
             var pool = GetPool(poolId);
 
             // set range
-            var end = clock.UtcNow;
+            var end = clock.Now;
             var start = end.AddDays(-1);
 
             var miners = (await cf.Run(con => statsRepo.PagePoolMinersByHashrateAsync(
@@ -364,22 +364,19 @@ namespace Miningcore.Api.Controllers
             SampleRange mode, PoolConfig pool, string address)
         {
             Persistence.Model.Projections.WorkerPerformanceStatsContainer[] stats = null;
-            var end = clock.UtcNow;
+            var end = clock.Now;
             DateTime start;
 
             switch(mode)
             {
                 case SampleRange.Day:
-
-			// NEW from CF-master
                     // set range
                     if(end.Minute < 30)
                         end = end.AddHours(-1);
 
                     end = end.AddMinutes(-end.Minute);
                     end = end.AddSeconds(-end.Second);
-			// <<<<<<<<-------
-					
+
                     start = end.AddDays(-1);
 
                     stats = await cf.Run(con => statsRepo.GetMinerPerformanceBetweenHourlyAsync(
@@ -387,23 +384,17 @@ namespace Miningcore.Api.Controllers
                     break;
 
                 case SampleRange.Month:
-					
-			// NEW from CF-master
                     if(end.Hour < 12)
                         end = end.AddDays(-1);
 
                     end = end.Date;
-			// <<<<<<<<-------
-					
+
                     // set range
                     start = end.AddMonths(-1);
 
                     stats = await cf.Run(con => statsRepo.GetMinerPerformanceBetweenDailyAsync(
                         con, pool.Id, address, start, end));
                     break;
-
-                default:
-                    throw new ApiException("invalid interval");
             }
 
             // map

@@ -1,7 +1,8 @@
 /*
 Copyright 2017 Coin Foundry (coinfoundry.org)
 Authors: Oliver Weichhold (oliver@weichhold.com)
-
+         Olaf Wasilewski (olaf.wasilewski@gmx.de)
+         
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 associated documentation files (the "Software"), to deal in the Software without restriction,
 including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
@@ -154,7 +155,7 @@ namespace Miningcore.Configuration
         public uint CoinbaseTxVersion { get; set; }
 
         /// <summary>
-        /// Default transaction comment for coins that REQUIRE tx comments 
+        /// Default transaction comment for coins that REQUIRE tx comments
         /// </summary>
         public string CoinbaseTxComment { get; set; }
 
@@ -164,6 +165,21 @@ namespace Miningcore.Configuration
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public bool HasMasterNodes { get; set; }
 
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public bool HasCoinbasePayload { get; set; }
+
+        [JsonProperty("hasFounderFee")]
+        public bool HasFounderFee { get; set; }
+
+        [JsonProperty("isFounderPayeeMultisig")]
+        public bool IsFounderPayeeMultisig { get; set; }
+
+        [JsonProperty("hasCoinbaseDevReward")]
+        public bool HasCoinbaseDevReward { get; set; }
+
+        [JsonProperty("hasTreasury")]
+        public bool HasTreasury { get; set; }
+        
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
         [DefaultValue(1.0d)]
         public double ShareMultiplier { get; set; } = 1.0d;
@@ -348,9 +364,8 @@ namespace Miningcore.Configuration
     {
         // ReSharper disable once InconsistentNaming
         PPLNS = 1,
-        Solo = 2,
-        PPS = 3,
-        PPBS = 4
+        PROP = 2,
+        SOLO = 3
     }
 
     public partial class ClusterLoggingConfig
@@ -624,15 +639,6 @@ namespace Miningcore.Configuration
         public string[] MetricsIpWhitelist { get; set; }
     }
 
-    public partial class Statistics
-    {
-        public int StatsUpdateInterval { get; set; }
-        public int HashrateCalculationWindow { get; set; }
-        public int StatsCleanupInterval { get; set; }
-        public int StatsDBCleanupHistory { get; set; }
-        
-    }
-
     public partial class ZmqPubSubEndpointConfig
     {
         public string Url { get; set; }
@@ -689,11 +695,16 @@ namespace Miningcore.Configuration
         public PoolShareBasedBanningConfig Banning { get; set; }
         public RewardRecipient[] RewardRecipients { get; set; }
         public string Address { get; set; }
-        public string PubKey { get; set; }  // POS coins only 
-        public int ClientConnectionTimeout { get; set; }  // Disconnect worker if timeout exceeded
+        public string PubKey { get; set; }  // POS coins only
+        public int ClientConnectionTimeout { get; set; }
         public int JobRebroadcastTimeout { get; set; }
         public int BlockRefreshInterval { get; set; }
-
+        /// <summary>
+        //Set this to false for hybrid coins that do not use pay to pubkey for coinbase,for example IDX
+        /// </summary>
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+        [DefaultValue(false)]
+        public bool UseP2PK { get; set; }
         /// <summary>
         /// If true, internal stratum ports are not initialized
         /// </summary>
@@ -720,7 +731,6 @@ namespace Miningcore.Configuration
         public ClusterPaymentProcessingConfig PaymentProcessing { get; set; }
         public NotificationsConfig Notifications { get; set; }
         public ApiConfig Api { get; set; }
-        public Statistics Statistics { get; set; }
 
         /// <summary>
         /// If this is enabled, shares are not written to the database

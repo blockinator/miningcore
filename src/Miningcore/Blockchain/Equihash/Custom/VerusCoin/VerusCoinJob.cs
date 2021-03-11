@@ -1,3 +1,24 @@
+/*
+Copyright 2017 Coin Foundry (coinfoundry.org)
+Authors: Oliver Weichhold (oliver@weichhold.com)
+         Olaf Wasilewski (olaf.wasilewski@gmx.de)
+         
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+associated documentation files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial
+portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -35,6 +56,11 @@ namespace Miningcore.Blockchain.Equihash.Custom.VerusCoin
 
             // pool reward (t-addr)
             rewardToPool = new Money(blockReward + rewardFees, MoneyUnit.Satoshi);
+            Console.WriteLine("Pool:");
+			Console.Write("Rewards pool - ");		    
+			Console.WriteLine(rewardToPool);
+			Console.Write("AddressDestination - ");
+            Console.WriteLine(poolAddressDestination);
             tx.Outputs.Add(rewardToPool, poolAddressDestination);
             
 
@@ -75,7 +101,7 @@ namespace Miningcore.Blockchain.Equihash.Custom.VerusCoin
             var headerBytes = SerializeHeader(nTime, nonce);
 
             // concat header and solution
-			var length =  headerBytes.Length+3 ;
+            var length =  headerBytes.Length+3 ;
           
             Span<byte> headerSolutionBytes = stackalloc byte[length];
             headerBytes.CopyTo(headerSolutionBytes);
@@ -218,6 +244,7 @@ namespace Miningcore.Blockchain.Equihash.Custom.VerusCoin
             var hashReserved = isSaplingActive && !string.IsNullOrEmpty(blockTemplate.FinalSaplingRootHash) ?
                 blockTemplate.FinalSaplingRootHash.HexToReverseByteArray().ToHexString() :
                 sha256Empty.ToHexString();
+                
             char[] charsToTrim = {'0'};
             var solutionIn = !string.IsNullOrEmpty(blockTemplate.Solution) ?
                 blockTemplate.Solution.HexToByteArray().ToHexString().TrimEnd(charsToTrim) :

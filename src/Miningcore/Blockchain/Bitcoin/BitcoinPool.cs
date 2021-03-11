@@ -1,6 +1,7 @@
 /*
 Copyright 2017 Coin Foundry (coinfoundry.org)
 Authors: Oliver Weichhold (oliver@weichhold.com)
+         Olaf Wasilewski (olaf.wasilewski@gmx.de)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -42,7 +43,6 @@ using Miningcore.Time;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NLog;
-
 namespace Miningcore.Blockchain.Bitcoin
 {
     [CoinFamily(CoinFamily.Bitcoin)]
@@ -62,7 +62,7 @@ namespace Miningcore.Blockchain.Bitcoin
         protected object currentJobParams;
         protected BitcoinJobManager manager;
         private BitcoinTemplate coin;
-
+        public int submitcount = 0;
         protected virtual async Task OnSubscribeAsync(StratumClient client, Timestamped<JsonRpcRequest> tsRequest)
         {
             var request = tsRequest.Value;
@@ -104,7 +104,7 @@ namespace Miningcore.Blockchain.Bitcoin
 
             var context = client.ContextAs<BitcoinWorkerContext>();
             var requestParams = request.ParamsAs<string[]>();
-            var workerValue = requestParams?.Length > 0 ? requestParams[0] : null;
+            var workerValue = requestParams?.Length > 0 ? requestParams[0] : "0";
             var password = requestParams?.Length > 1 ? requestParams[1] : null;
             var passParts = password?.Split(PasswordControlVarsSeparator);
 
@@ -166,7 +166,7 @@ namespace Miningcore.Blockchain.Bitcoin
                     throw new StratumException(StratumError.MinusOne, "missing request id");
 
                 // check age of submission (aged submissions are usually caused by high server load)
-                var requestAge = clock.UtcNow - tsRequest.Timestamp.UtcDateTime;
+                var requestAge = clock.Now - tsRequest.Timestamp.UtcDateTime;
 
                 if(requestAge > maxShareAge)
                 {
@@ -175,7 +175,7 @@ namespace Miningcore.Blockchain.Bitcoin
                 }
 
                 // check worker state
-                context.LastActivity = clock.UtcNow;
+                context.LastActivity = clock.Now;
 
                 // validate worker
                 if(!context.IsAuthorized)
@@ -195,13 +195,13 @@ namespace Miningcore.Blockchain.Bitcoin
                 messageBus.SendMessage(new ClientShare(client, share));
 
                 // telemetry
-                PublishTelemetry(TelemetryCategory.Share, clock.UtcNow - tsRequest.Timestamp.UtcDateTime, true);
-
-                logger.Info(() => $"[{client.ConnectionId}] Share accepted: D={Math.Round(share.Difficulty * coin.ShareMultiplier, 3)}");
+                PublishTelemetry(TelemetryCategory.Share, clock.Now - tsRequest.Timestamp.UtcDateTime, true);
+                submitcount+=1;
+                logger.Info(() => $"[{client.ConnectionId}] Total Shares:{submitcount} Share accepted: D={Math.Round(share.Difficulty * coin.ShareMultiplier, 3)}");
 
                 // update pool stats
-                if (share.IsBlockCandidate)
-                    poolStats.LastPoolBlockTime = clock.UtcNow;
+                if(share.IsBlockCandidate)
+                    poolStats.LastPoolBlockTime = clock.Now;
 
                 // update client stats
                 context.Stats.ValidShares++;
@@ -211,7 +211,7 @@ namespace Miningcore.Blockchain.Bitcoin
             catch(StratumException ex)
             {
                 // telemetry
-                PublishTelemetry(TelemetryCategory.Share, clock.UtcNow - tsRequest.Timestamp.UtcDateTime, false);
+                PublishTelemetry(TelemetryCategory.Share, clock.Now - tsRequest.Timestamp.UtcDateTime, false);
 
                 // update client stats
                 context.Stats.InvalidShares++;
@@ -336,9 +336,10 @@ namespace Miningcore.Blockchain.Bitcoin
                 if(context.IsSubscribed && context.IsAuthorized)
                 {
                     // check alive
-                    var lastActivityAgo = clock.UtcNow - context.LastActivity;
+                    var lastActivityAgo = clock.Now - context.LastActivity;
 
-                    if(poolConfig.ClientConnectionTimeout > 0 && lastActivityAgo.TotalSeconds > poolConfig.ClientConnectionTimeout)
+                    if(poolConfig.ClientConnectionTimeout > 0 &&
+                        lastActivityAgo.TotalSeconds > poolConfig.ClientConnectionTimeout)
                     {
                         logger.Info(() => $"[{client.ConnectionId}] Booting zombie-worker (idle-timeout exceeded)");
                         DisconnectClient(client);

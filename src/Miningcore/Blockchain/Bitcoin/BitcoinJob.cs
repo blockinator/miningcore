@@ -1,3 +1,24 @@
+/*
+Copyright 2017 Coin Foundry (coinfoundry.org)
+Authors: Oliver Weichhold (oliver@weichhold.com)
+         Olaf Wasilewski (olaf.wasilewski@gmx.de)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+associated documentation files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial
+portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -17,7 +38,6 @@ using NBitcoin.DataEncoders;
 using Newtonsoft.Json.Linq;
 using Contract = Miningcore.Contracts.Contract;
 using Transaction = NBitcoin.Transaction;
-
 namespace Miningcore.Blockchain.Bitcoin
 {
     public class BitcoinJob
@@ -55,7 +75,7 @@ namespace Miningcore.Blockchain.Bitcoin
         protected Transaction txOut;
 
         // serialization constants
-        protected static byte[] scriptSigFinalBytes = new Script(Op.GetPushOp(Encoding.UTF8.GetBytes("/MiningCore/"))).ToBytes();
+        protected static byte[] scriptSigFinalBytes = new Script(Op.GetPushOp(Encoding.UTF8.GetBytes("/AlphaxCore/"))).ToBytes();
 
         protected static byte[] sha256Empty = new byte[32];
         protected uint txVersion = 1u; // transaction version (currently 1) - see https://en.bitcoin.it/wiki/Transaction
@@ -92,10 +112,11 @@ namespace Miningcore.Blockchain.Bitcoin
                 scriptSigFinalBytes.Length);
 
             // output transaction
-            txOut = coin.HasMasterNodes ?
-                CreateMasternodeOutputTransaction() :
-                (coin.HasPayee ? CreatePayeeOutputTransaction() : CreateOutputTransaction());
-
+            txOut = (coin.HasMasterNodes) ? CreateMasternodeOutputTransaction() : (coin.HasPayee ? CreatePayeeOutputTransaction() : CreateOutputTransaction());
+            if(coin.HasCoinbasePayload){
+                //Build txOut with superblock and cold reward payees for DVT
+                txOut = CreatePayloadOutputTransaction();
+            }
             // build coinbase initial
             using(var stream = new MemoryStream())
             {
@@ -104,8 +125,8 @@ namespace Miningcore.Blockchain.Bitcoin
                 // version
                 bs.ReadWrite(ref txVersion);
 
-                // timestamp for POS coins
-                if(isPoS)
+                // // timestamp for POS coins
+                if(isPoS && poolConfig.UseP2PK)
                 {
                     var timestamp = BlockTemplate.CurTime;
                     bs.ReadWrite(ref timestamp);
@@ -217,7 +238,7 @@ namespace Miningcore.Blockchain.Bitcoin
 
         protected virtual Script GenerateScriptSigInitial()
         {
-            var now = ((DateTimeOffset) clock.UtcNow).ToUnixTimeSeconds();
+            var now = ((DateTimeOffset) clock.Now).ToUnixTimeSeconds();
 
             // script ops
             var ops = new List<Op>();
@@ -243,8 +264,20 @@ namespace Miningcore.Blockchain.Bitcoin
             rewardToPool = new Money(BlockTemplate.CoinbaseValue, MoneyUnit.Satoshi);
 
             var tx = Transaction.Create(network);
+            
+            // Now check if we need to pay founder fees
+            if(coin.HasFounderFee)
+                rewardToPool = CreateFounderOutputs(tx,rewardToPool);
+            
+            // Treasury check for Globaltoken
+            if(coin.HasTreasury)
+                rewardToPool = CreateTreasuryOutputs(tx,rewardToPool);
 
             tx.Outputs.Add(rewardToPool, poolAddressDestination);
+            
+            // CoinbaseDevReward check for Freecash
+            if(coin.HasCoinbaseDevReward)
+                CreateCoinbaseDevRewardOutputs(tx);
 
             return tx;
         }
@@ -328,6 +361,7 @@ namespace Miningcore.Blockchain.Bitcoin
             // hash block-header
             var headerBytes = SerializeHeader(coinbaseHash, nTime, nonce, context.VersionRollingMask, versionBits);
             Span<byte> headerHash = stackalloc byte[32];
+
             headerHasher.Digest(headerBytes, headerHash, (ulong) nTime, BlockTemplate, coin, networkParams);
             var headerValue = new uint256(headerHash);
 
@@ -348,7 +382,7 @@ namespace Miningcore.Blockchain.Bitcoin
                     ratio = shareDiff / context.PreviousDifficulty.Value;
 
                     if(ratio < 0.99)
-                        throw new StratumException(StratumError.LowDifficultyShare, $"low difficulty share ({shareDiff})");
+                        throw new StratumException(StratumError.LowDifficultyShare, $"low difficulty share given  ({shareDiff})");
 
                     // use previous difficulty
                     stratumDifficulty = context.PreviousDifficulty.Value;
@@ -412,8 +446,8 @@ namespace Miningcore.Blockchain.Bitcoin
                 bs.ReadWrite(ref coinbase);
                 bs.ReadWrite(ref rawTransactionBuffer);
 
-                // POS coins require a zero byte appended to block which the daemon replaces with the signature
-                if(isPoS)
+                // // POS coins require a zero byte appended to block which the daemon replaces with the signature
+                if(isPoS && poolConfig.UseP2PK)
                     bs.ReadWrite((byte) 0);
 
                 return stream.ToArray();
@@ -442,12 +476,13 @@ namespace Miningcore.Blockchain.Bitcoin
         {
             var blockReward = new Money(BlockTemplate.CoinbaseValue, MoneyUnit.Satoshi);
             rewardToPool = new Money(BlockTemplate.CoinbaseValue, MoneyUnit.Satoshi);
-
             var tx = Transaction.Create(network);
 
             // outputs
             rewardToPool = CreateMasternodeOutputs(tx, blockReward);
-
+            //Now check if we need to pay founder fees Re PGN
+            if(coin.HasFounderFee)
+                rewardToPool = CreateFounderOutputs(tx,rewardToPool);
             // Finally distribute remaining funds to pool
             tx.Outputs.Insert(0, new TxOut(rewardToPool, poolAddressDestination));
 
@@ -472,10 +507,10 @@ namespace Miningcore.Blockchain.Bitcoin
                     {
                         var payeeAddress = BitcoinUtils.AddressToDestination(masterNode.Payee, network);
                         var payeeReward = masterNode.Amount;
-
-                        reward -= payeeReward;
-                        rewardToPool -= payeeReward;
-
+                        if(!(poolConfig.Template.Symbol == "IDX" || poolConfig.Template.Symbol == "VGC" || poolConfig.Template.Symbol == "SHRX" || poolConfig.Template.Symbol == "XZC")){
+                                reward -= payeeReward;
+                                rewardToPool -= payeeReward;
+                        }
                         tx.Outputs.Add(payeeReward, payeeAddress);
                     }
                 }
@@ -498,10 +533,11 @@ namespace Miningcore.Blockchain.Bitcoin
             if(!string.IsNullOrEmpty(masterNodeParameters.Payee))
             {
                 var payeeAddress = BitcoinUtils.AddressToDestination(masterNodeParameters.Payee, network);
-                var payeeReward = masterNodeParameters.PayeeAmount ?? (reward / 5);
-
-                reward -= payeeReward;
-                rewardToPool -= payeeReward;
+                var payeeReward = masterNodeParameters.PayeeAmount;
+                if(!(poolConfig.Template.Symbol == "IDX" || poolConfig.Template.Symbol == "VGC" || poolConfig.Template.Symbol == "SHRX" || poolConfig.Template.Symbol == "XZC")){
+                    reward -= payeeReward;
+                    rewardToPool -= payeeReward;
+                }
 
                 tx.Outputs.Add(payeeReward, payeeAddress);
             }
@@ -511,6 +547,124 @@ namespace Miningcore.Blockchain.Bitcoin
 
         #endregion // Masternodes
 
+        #region DevaultCoinbasePayload
+
+        protected CoinbasePayloadBlockTemplateExtra coinbasepayloadParameters;
+
+        protected virtual Transaction CreatePayloadOutputTransaction()
+        {
+            var blockReward = new Money(BlockTemplate.CoinbaseValue, MoneyUnit.Satoshi);
+            var tx = Transaction.Create(network);
+            // Firstly pay coins to pool addr
+            tx.Outputs.Insert(0, new TxOut(blockReward, poolAddressDestination));
+            // then create payloads incase there is any coinbase_payload in gbt
+            CreatePayloadOutputs(tx, rewardToPool);
+            return tx;
+        }
+
+        protected virtual void CreatePayloadOutputs(Transaction tx, Money reward)
+        {
+            if(coinbasepayloadParameters.CoinbasePayload != null)
+            {
+                CoinbasePayload[] coinbasepayloads;
+                if(coinbasepayloadParameters.CoinbasePayload.Type == JTokenType.Array)
+                    coinbasepayloads = coinbasepayloadParameters.CoinbasePayload.ToObject<CoinbasePayload[]>();
+                else
+                    coinbasepayloads = new[] { coinbasepayloadParameters.CoinbasePayload.ToObject<CoinbasePayload>() };
+
+                foreach(var CoinbasePayee in coinbasepayloads)
+                {
+                    if(!string.IsNullOrEmpty(CoinbasePayee.Payee))
+                    {
+                        var payeeAddress = BitcoinUtils.CashAddrToDestination(CoinbasePayee.Payee, network,true);
+                        var payeeReward = CoinbasePayee.Amount;
+
+                        tx.Outputs.Add(payeeReward, payeeAddress);
+                    }
+                }
+            }
+        }
+
+        #endregion // DevaultCoinbasePayload
+
+        #region PigeoncoinDevFee
+
+        protected FounderBlockTemplateExtra FounderParameters;
+
+        protected virtual Money CreateFounderOutputs(Transaction tx, Money reward)
+        {
+
+            if(FounderParameters.Founder != null)
+            {
+                Founder[] founders = new[] { FounderParameters.Founder.ToObject<Founder>() };
+                foreach(var Founder in founders)
+                {
+                    if(!string.IsNullOrEmpty(Founder.Payee))
+                    {
+                        var payeeAddress = coin.IsFounderPayeeMultisig ? BitcoinUtils.MultiSigAddressToDestination(Founder.Payee, network) : BitcoinUtils.AddressToDestination(Founder.Payee, network);
+                        var payeeReward = Founder.Amount;
+                        reward -= payeeReward;
+                        rewardToPool -= payeeReward;
+                        tx.Outputs.Add(payeeReward,payeeAddress);
+                    }
+                }
+            }
+            return reward;
+        }
+
+        #endregion // PigeoncoinDevFee
+
+        #region CoinbaseDevReward
+
+        protected CoinbaseDevRewardTemplateExtra CoinbaseDevRewardParams;
+
+        protected virtual void CreateCoinbaseDevRewardOutputs(Transaction tx)
+        {
+            if(CoinbaseDevRewardParams.CoinbaseDevReward != null)
+            {
+                CoinbaseDevReward[] CBRewards;
+                CBRewards = new[] { CoinbaseDevRewardParams.CoinbaseDevReward.ToObject<CoinbaseDevReward>() };
+
+                foreach(var CBReward in CBRewards)
+                {
+                    if(!string.IsNullOrEmpty(CBReward.Payee))
+                    {
+                        var payeeAddress = BitcoinUtils.AddressToDestination(CBReward.Payee, network);
+                        var payeeReward = CBReward.Value;
+                        tx.Outputs.Add(payeeReward, payeeAddress);
+                    }
+                }
+            }
+        }
+
+        #endregion // CoinbaseDevReward
+        
+        #region Treasury
+
+        protected TreasuryTemplateExtra TreasuryParams;
+
+        protected virtual Money CreateTreasuryOutputs(Transaction tx, Money reward)
+        {
+            if(TreasuryParams.Treasury != null)
+            {
+                Treasury[] CBRewards;
+                CBRewards = new[] { TreasuryParams.Treasury.ToObject<Treasury>() };
+
+                foreach(var CBReward in CBRewards)
+                {
+                    if(!string.IsNullOrEmpty(CBReward.Payee))
+                    {
+                        var payeeAddress = BitcoinUtils.AddressToDestination(CBReward.Payee, network);
+                        var payeeReward = CBReward.Amount;
+                        tx.Outputs.Add(payeeReward, payeeAddress);
+                    }
+                }
+            }
+            return reward;
+        }
+
+        #endregion // Treasury
+            
         #region API-Surface
 
         public BlockTemplate BlockTemplate { get; protected set; }
@@ -563,6 +717,17 @@ namespace Miningcore.Blockchain.Bitcoin
                     txVersion = txVersion + ((uint) (txType << 16));
                 }
             }
+            if(coin.HasCoinbasePayload)
+                coinbasepayloadParameters = BlockTemplate.Extra.SafeExtensionDataAs<CoinbasePayloadBlockTemplateExtra>();
+
+            if(coin.HasFounderFee)
+                FounderParameters = BlockTemplate.Extra.SafeExtensionDataAs<FounderBlockTemplateExtra>();
+
+            if(coin.HasCoinbaseDevReward)
+                CoinbaseDevRewardParams = BlockTemplate.Extra.SafeExtensionDataAs<CoinbaseDevRewardTemplateExtra>();
+            
+            if(coin.HasTreasury)
+                TreasuryParams = BlockTemplate.Extra.SafeExtensionDataAs<TreasuryTemplateExtra>();
 
             if(coin.HasPayee)
                 payeeParameters = BlockTemplate.Extra.SafeExtensionDataAs<PayeeBlockTemplateExtra>();
@@ -622,8 +787,7 @@ namespace Miningcore.Blockchain.Bitcoin
                 throw new StratumException(StratumError.Other, "incorrect size of ntime");
 
             var nTimeInt = uint.Parse(nTime, NumberStyles.HexNumber);
-
-            if (nTimeInt < BlockTemplate.CurTime || nTimeInt > ((DateTimeOffset) clock.UtcNow).ToUnixTimeSeconds() + 7200)
+            if(nTimeInt < BlockTemplate.CurTime || nTimeInt > ((DateTimeOffset) clock.Now).ToUnixTimeSeconds() + 7200)
                 throw new StratumException(StratumError.Other, "ntime out of range");
 
             // validate nonce

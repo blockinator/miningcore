@@ -81,7 +81,7 @@ namespace Miningcore.Mining
                 while(!cts.IsCancellationRequested)
                 {
                     // track last message received per endpoint
-                    var lastMessageReceived = relays.Select(_ => clock.UtcNow).ToArray();
+                    var lastMessageReceived = relays.Select(_ => clock.Now).ToArray();
 
                     try
                     {
@@ -102,20 +102,19 @@ namespace Miningcore.Mining
 
                                         if(msg != null)
                                         {
-                                            lastMessageReceived[i] = clock.UtcNow;
+                                            lastMessageReceived[i] = clock.Now;
 
                                             queue.Post((relays[i].Url, msg));
                                         }
 
-                                        else if (clock.UtcNow - lastMessageReceived[i] > reconnectTimeout)
-
+                                        else if(clock.Now - lastMessageReceived[i] > reconnectTimeout)
                                         {
                                             // re-create socket
                                             sockets[i].Dispose();
                                             sockets[i] = SetupSubSocket(relays[i]);
 
                                             // reset clock
-                                            lastMessageReceived[i] = clock.UtcNow;
+                                            lastMessageReceived[i] = clock.Now;
 
                                             logger.Info(() => $"Receive timeout of {reconnectTimeout.TotalSeconds} seconds exceeded. Re-connecting to {relays[i].Url} ...");
                                         }
@@ -251,7 +250,7 @@ namespace Miningcore.Mining
 
             // store
             share.PoolId = topic;
-            share.Created = clock.UtcNow;
+            share.Created = clock.Now;
             messageBus.SendMessage(new ClientShare(null, share));
 
             // update poolstats from shares
@@ -271,9 +270,9 @@ namespace Miningcore.Mining
 
                     if(poolContext.BlockHeight != share.BlockHeight)
                     {
-                        pool.NetworkStats.LastNetworkBlockTime = clock.UtcNow;
+                        pool.NetworkStats.LastNetworkBlockTime = clock.Now;
                         poolContext.BlockHeight = share.BlockHeight;
-                        poolContext.LastBlock = clock.UtcNow;
+                        poolContext.LastBlock = clock.Now;
                     }
 
                     else

@@ -1,6 +1,7 @@
 /*
 Copyright 2017 Coin Foundry (coinfoundry.org)
 Authors: Oliver Weichhold (oliver@weichhold.com)
+         Olaf Wasilewski (olaf.wasilewski@gmx.de)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -177,7 +178,7 @@ namespace Miningcore.Blockchain.Bitcoin
                     triggers.Add(btStream
                         .Select(json =>
                         {
-                            var force = !lastJobRebroadcast.HasValue || (clock.UtcNow - lastJobRebroadcast >= interval);
+                            var force = !lastJobRebroadcast.HasValue || (clock.Now - lastJobRebroadcast >= interval);
                             return (force, !force ? JobRefreshBy.BlockTemplateStream : JobRefreshBy.BlockTemplateStreamRefresh, json);
                         })
                         .Publish()
@@ -232,8 +233,6 @@ namespace Miningcore.Blockchain.Bitcoin
                     // get list of peers and their highest block height to compare to ours
                     var peerInfo = await daemon.ExecuteCmdAnyAsync<PeerInfo[]>(logger, BitcoinCommands.GetPeerInfo);
                     var peers = peerInfo.Response;
-
-                    logger.Info(() => $"Daemons has [{peers.Length}] peers connected");
 
                     if(peers != null && peers.Length > 0)
                     {
@@ -369,7 +368,8 @@ namespace Miningcore.Blockchain.Bitcoin
             try
             {
                 var results = await daemon.ExecuteBatchAnyAsync(logger,
-                    new DaemonCmd(BitcoinCommands.GetConnectionCount)
+                    new DaemonCmd(BitcoinCommands.GetConnectionCount),
+                    new DaemonCmd(BitcoinCommands.GetMiningInfo)
                 );
 
                 if(results.Any(x => x.Error != null))
@@ -381,9 +381,10 @@ namespace Miningcore.Blockchain.Bitcoin
                 }
 
                 var connectionCountResponse = results[0].Response.ToObject<object>();
+                var miningInfoResponse = results[1].Response.ToObject<MiningInfo>();
 
-                //BlockchainStats.NetworkHashrate = miningInfoResponse.NetworkHashps;
                 BlockchainStats.ConnectedPeers = (int) (long) connectionCountResponse;
+                BlockchainStats.NetworkHashrate = miningInfoResponse.NetmHashps *= 1000000;
             }
 
             catch(Exception e)
@@ -503,16 +504,19 @@ namespace Miningcore.Blockchain.Bitcoin
             isPoS = difficultyResponse.Values().Any(x => x.Path == "proof-of-stake");
 
             // Create pool address script from response
-            if(!isPoS)
-                poolAddressDestination = AddressToDestination(poolConfig.Address, extraPoolConfig?.AddressType);
-            else
+            if(!isPoS || !poolConfig.UseP2PK){
+                poolAddressDestination = AddressToDestination(poolConfig.Address,extraPoolConfig?.AddressType);
+            }
+    
+            else {
                 poolAddressDestination = new PubKey(poolConfig.PubKey ?? validateAddressResponse.PubKey);
+            }
 
             // Payment-processing setup
             if(clusterConfig.PaymentProcessing?.Enabled == true && poolConfig.PaymentProcessing?.Enabled == true)
             {
-                // ensure pool owns wallet
-                //if (!validateAddressResponse.IsMine)
+                // // ensure pool owns wallet
+                // if (!validateAddressResponse.IsMine)
                 //    logger.ThrowLogPoolStartupException($"Daemon does not own pool-address '{poolConfig.Address}'");
 
                 ConfigureRewards();
@@ -520,7 +524,7 @@ namespace Miningcore.Blockchain.Bitcoin
 
             // update stats
             BlockchainStats.NetworkType = network.Name;
-            BlockchainStats.RewardType = isPoS ? "POS" : "POW";
+            BlockchainStats.RewardType = isPoS ? "POS":"POW";
 
             // block submission RPC method
             if(submitBlockResponse.Error?.Message?.ToLower() == "method not found")
@@ -564,7 +568,10 @@ namespace Miningcore.Blockchain.Bitcoin
             switch(addressType.Value)
             {
                 case BitcoinAddressType.BechSegwit:
-                    return BitcoinUtils.BechSegwitAddressToDestination(poolConfig.Address, network);
+                    return BitcoinUtils.BechSegwitAddressToDestination(poolConfig.Address, network,extraPoolConfig?.BechPrefix);
+
+                case BitcoinAddressType.CashAddr:
+                    return BitcoinUtils.CashAddrToDestination(poolConfig.Address, network);
 
                 default:
                     return BitcoinUtils.AddressToDestination(poolConfig.Address, network);

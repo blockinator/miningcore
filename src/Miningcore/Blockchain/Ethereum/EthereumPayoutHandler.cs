@@ -1,6 +1,7 @@
 /*
 Copyright 2017 Coin Foundry (coinfoundry.org)
 Authors: Oliver Weichhold (oliver@weichhold.com)
+         Olaf Wasilewski (olaf.wasilewski@gmx.de)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -45,6 +46,7 @@ using Miningcore.Util;
 using Newtonsoft.Json;
 using Block = Miningcore.Persistence.Model.Block;
 using Contract = Miningcore.Contracts.Contract;
+using EC = Miningcore.Blockchain.Ethereum.EthCommands;
 
 namespace Miningcore.Blockchain.Ethereum
 {
@@ -75,7 +77,7 @@ namespace Miningcore.Blockchain.Ethereum
         private DaemonClient daemon;
         private EthereumNetworkType networkType;
         private ParityChainType chainType;
-        private const int BlockSearchOffset = 50;
+        private const int BlockSearchOffset = 7;
         private EthereumPoolConfigExtra extraPoolConfig;
         private EthereumPoolPaymentProcessingConfigExtra extraConfig;
         private bool isParity = true;
@@ -126,7 +128,7 @@ namespace Miningcore.Blockchain.Ethereum
                     .ToArray();
 
                 // get latest block
-                var latestBlockResponses = await daemon.ExecuteCmdAllAsync<DaemonResponses.Block>(logger, EthCommands.GetBlockByNumber, new[] { (object) "latest", true });
+                var latestBlockResponses = await daemon.ExecuteCmdAllAsync<DaemonResponses.Block>(logger, EC.GetBlockByNumber, new[] { (object) "latest", true });
                 var latestBlockHeight = latestBlockResponses.First(x => x.Error == null && x.Response?.Height != null).Response.Height.Value;
 
                 // execute batch
@@ -150,16 +152,8 @@ namespace Miningcore.Blockchain.Ethereum
                     // is it block mined by us?
                     if(string.Equals(blockInfo.Miner, poolConfig.Address, StringComparison.OrdinalIgnoreCase))
                     {
-                        // additional check
-                        // NOTE: removal of first character of both sealfields caused by
-                        // https://github.com/paritytech/parity/issues/1090
-                        var match = isParity ?
-                            true :
-                            blockInfo.SealFields[0].Substring(2) == mixHash &&
-                            blockInfo.SealFields[1].Substring(2) == nonce;
-
                         // mature?
-                        if(match && (latestBlockHeight - block.BlockHeight >= EthereumConstants.MinConfimations))
+                        if(latestBlockHeight - block.BlockHeight >= EthereumConstants.MinConfimations)
                         {
                             block.Status = BlockStatus.Confirmed;
                             block.ConfirmationProgress = 1;
@@ -198,7 +192,7 @@ namespace Miningcore.Blockchain.Ethereum
                         if(blockInfo2.Uncles.Length > 0)
                         {
                             // fetch all uncles in a single RPC batch request
-                            var uncleBatch = blockInfo2.Uncles.Select((x, index) => new DaemonCmd(EthCommands.GetUncleByBlockNumberAndIndex,
+                            var uncleBatch = blockInfo2.Uncles.Select((x, index) => new DaemonCmd(EC.GetUncleByBlockNumberAndIndex,
                                     new[] { blockInfo2.Height.Value.ToStringHexWithPrefix(), index.ToStringHexWithPrefix() }))
                                 .ToArray();
 
@@ -270,7 +264,7 @@ namespace Miningcore.Blockchain.Ethereum
         public async Task PayoutAsync(Balance[] balances)
         {
             // ensure we have peers
-            var infoResponse = await daemon.ExecuteCmdSingleAsync<string>(logger, EthCommands.GetPeerCount);
+            var infoResponse = await daemon.ExecuteCmdSingleAsync<string>(logger, EC.GetPeerCount);
 
             if(networkType == EthereumNetworkType.Main &&
                 (infoResponse.Error != null || string.IsNullOrEmpty(infoResponse.Response) ||
@@ -310,7 +304,7 @@ namespace Miningcore.Blockchain.Ethereum
 
             if(cacheMisses.Any())
             {
-                var blockBatch = cacheMisses.Select(height => new DaemonCmd(EthCommands.GetBlockByNumber,
+                var blockBatch = cacheMisses.Select(height => new DaemonCmd(EC.GetBlockByNumber,
                     new[]
                     {
                         (object) height.ToStringHexWithPrefix(),
@@ -337,8 +331,6 @@ namespace Miningcore.Blockchain.Ethereum
             switch(chainType)
             {
                 case ParityChainType.Mainnet:
-                    if (height >= EthereumConstants.ConstantinopleHardForkHeight)
-                        return EthereumConstants.ConstantinopleReward;
                     if(height >= EthereumConstants.ByzantiumHardForkHeight)
                         return EthereumConstants.ByzantiumBlockReward;
 
@@ -363,6 +355,9 @@ namespace Miningcore.Blockchain.Ethereum
                 case ParityChainType.Callisto:
                     return CallistoConstants.BaseRewardInitial * (1.0m - CallistoConstants.TreasuryPercent);
 
+                case ParityChainType.Joys:
+                    return EthereumConstants.JoysBlockReward;
+
                 default:
                     throw new Exception("Unable to determine block reward: Unsupported chain type");
             }
@@ -371,7 +366,7 @@ namespace Miningcore.Blockchain.Ethereum
         private async Task<decimal> GetTxRewardAsync(DaemonResponses.Block blockInfo)
         {
             // fetch all tx receipts in a single RPC batch request
-            var batch = blockInfo.Transactions.Select(tx => new DaemonCmd(EthCommands.GetTxReceipt, new[] { tx.Hash }))
+            var batch = blockInfo.Transactions.Select(tx => new DaemonCmd(EC.GetTxReceipt, new[] { tx.Hash }))
                 .ToArray();
 
             var results = await daemon.ExecuteBatchAnyAsync(logger, batch);
@@ -413,8 +408,8 @@ namespace Miningcore.Blockchain.Ethereum
         {
             var commands = new[]
             {
-                new DaemonCmd(EthCommands.GetNetVersion),
-                new DaemonCmd(EthCommands.ParityChain),
+                new DaemonCmd(EC.GetNetVersion),
+                new DaemonCmd(EC.ParityChain),
             };
 
             var results = await daemon.ExecuteBatchAnyAsync(logger, commands);
@@ -442,37 +437,25 @@ namespace Miningcore.Blockchain.Ethereum
 
         private async Task<string> PayoutAsync(Balance balance)
         {
-            // unlock account
-            if(extraConfig.CoinbasePassword != null)
-            {
-                var unlockResponse = await daemon.ExecuteCmdSingleAsync<object>(logger, EthCommands.UnlockAccount, new[]
-                {
-                    poolConfig.Address,
-                    extraConfig.CoinbasePassword,
-                    null
-                });
-
-                if(unlockResponse.Error != null || unlockResponse.Response == null || (bool) unlockResponse.Response == false)
-                    throw new Exception("Unable to unlock coinbase account for sending transaction");
-            }
-
             // send transaction
             logger.Info(() => $"[{LogCategory}] Sending {FormatAmount(balance.Amount)} to {balance.Address}");
+
+            var amount = (BigInteger)Math.Floor(balance.Amount * EthereumConstants.Wei);
 
             var request = new SendTransactionRequest
             {
                 From = poolConfig.Address,
                 To = balance.Address,
-                Value = (BigInteger) Math.Floor(balance.Amount * EthereumConstants.Wei),
+                Value = writeHex(amount),
             };
 
-            var response = await daemon.ExecuteCmdSingleAsync<string>(logger, EthCommands.SendTx, new[] { request });
+            var response = await daemon.ExecuteCmdSingleAsync<string>(logger, EC.SendTx, new[] { request });
 
             if(response.Error != null)
-                throw new Exception($"{EthCommands.SendTx} returned error: {response.Error.Message} code {response.Error.Code}");
+                throw new Exception($"{EC.SendTx} returned error: {response.Error.Message} code {response.Error.Code}");
 
             if(string.IsNullOrEmpty(response.Response) || EthereumConstants.ZeroHashPattern.IsMatch(response.Response))
-                throw new Exception($"{EthCommands.SendTx} did not return a valid transaction hash");
+                throw new Exception($"{EC.SendTx} did not return a valid transaction hash");
 
             var txHash = response.Response;
             logger.Info(() => $"[{LogCategory}] Payout transaction id: {txHash}");
@@ -482,6 +465,11 @@ namespace Miningcore.Blockchain.Ethereum
 
             // done
             return txHash;
+        }
+
+        private static string writeHex(BigInteger value)
+        {
+            return (value.ToString("x").TrimStart('0'));
         }
     }
 }

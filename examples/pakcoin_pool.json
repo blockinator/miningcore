@@ -7,12 +7,6 @@
         "logBaseDirectory": "",
         "perPoolLogFile": false
     },
-    "statistics": {
-	    "statsUpdateInterval": 60,
-	    "hashrateCalculationWindow": 5,
-	    "statsCleanupInterval": 48,
-	    "statsDBCleanupHistory": 365
-    },
     "banning": {
         "manager": "integrated",
         "banOnJunkReceive": true,
@@ -46,37 +40,17 @@
     "paymentProcessing": {
         "enabled": true,
         "interval": 600,
-        "shareRecoveryFile": "mc-recovered-shares.txt"
-    },
-    "api": {
-        "enabled": true,
-        "ssl": false,
-	    "tls": false,
-        "tlsPfxFile": "",
-        "listenAddress": "127.0.0.1",
-        "port": 4000,
-        "metricsIpWhitelist": ["127.0.0.1"],
-        "rateLimiting": {
-            "disabled": true,
-            "rules": [
-                {
-                    "Endpoint": "*",
-                    "Period": "60s",
-                    "Limit": 1000000
-                }
-            ],
-            "ipWhitelist": []
-        }
+        "shareRecoveryFile": "recovered-shares.txt"
     },
     "pools": [{
-      "id": "pak1",
+      "id": "pak",
       "enabled": true,
       "coin": "pakcoin",
       "hasLegacyDaemon": true,
-      "address": "",
+      "address": "PSWsdRBXui6nnhV9FJ4NduC2KdFkeudtEz",
       "rewardRecipients": [
         {
-          "address": "",
+          "address": "PSWsdRBXui6nnhV9FJ4NduC2KdFkeudtEz",
           "percentage": 1.0
         }
       ],

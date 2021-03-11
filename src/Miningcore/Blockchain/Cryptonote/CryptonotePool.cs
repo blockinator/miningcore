@@ -1,6 +1,7 @@
 /*
 Copyright 2017 Coin Foundry (coinfoundry.org)
 Authors: Oliver Weichhold (oliver@weichhold.com)
+         Olaf Wasilewski (olaf.wasilewski@gmx.de)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -77,7 +78,7 @@ namespace Miningcore.Blockchain.Cryptonote
             // extract worker/miner/paymentid
             var split = loginRequest.Login.Split('.');
             context.Miner = split[0].Trim();
-            context.Worker = split.Length > 1 ? split[1].Trim() : null;
+            context.Worker = split.Length > 1 ? split[1].Trim() : "0";
             context.UserAgent = loginRequest.UserAgent?.Trim();
 
             var addressToValidate = context.Miner;
@@ -192,7 +193,7 @@ namespace Miningcore.Blockchain.Cryptonote
                     throw new StratumException(StratumError.MinusOne, "missing request id");
 
                 // check age of submission (aged submissions are usually caused by high server load)
-                var requestAge = clock.UtcNow - tsRequest.Timestamp.UtcDateTime;
+                var requestAge = clock.Now - tsRequest.Timestamp.UtcDateTime;
 
                 if(requestAge > maxShareAge)
                 {
@@ -208,7 +209,7 @@ namespace Miningcore.Blockchain.Cryptonote
                     throw new StratumException(StratumError.MinusOne, "unauthorized");
 
                 // recognize activity
-                context.LastActivity = clock.UtcNow;
+                context.LastActivity = clock.Now;
 
                 CryptonoteWorkerJob job;
 
@@ -240,13 +241,13 @@ namespace Miningcore.Blockchain.Cryptonote
                 messageBus.SendMessage(new ClientShare(client, share));
 
                 // telemetry
-                PublishTelemetry(TelemetryCategory.Share, clock.UtcNow - tsRequest.Timestamp.UtcDateTime, true);
+                PublishTelemetry(TelemetryCategory.Share, clock.Now - tsRequest.Timestamp.UtcDateTime, true);
 
                 logger.Info(() => $"[{client.ConnectionId}] Share accepted: D={Math.Round(share.Difficulty, 3)}");
 
                 // update pool stats
-                if (share.IsBlockCandidate)
-                    poolStats.LastPoolBlockTime = clock.UtcNow;
+                if(share.IsBlockCandidate)
+                    poolStats.LastPoolBlockTime = clock.Now;
 
                 // update client stats
                 context.Stats.ValidShares++;
@@ -256,7 +257,7 @@ namespace Miningcore.Blockchain.Cryptonote
             catch(StratumException ex)
             {
                 // telemetry
-                PublishTelemetry(TelemetryCategory.Share, clock.UtcNow - tsRequest.Timestamp.UtcDateTime, false);
+                PublishTelemetry(TelemetryCategory.Share, clock.Now - tsRequest.Timestamp.UtcDateTime, false);
 
                 // update client stats
                 context.Stats.InvalidShares++;
@@ -288,9 +289,10 @@ namespace Miningcore.Blockchain.Cryptonote
                 if(context.IsSubscribed && context.IsAuthorized)
                 {
                     // check alive
-                    var lastActivityAgo = clock.UtcNow - context.LastActivity;
+                    var lastActivityAgo = clock.Now - context.LastActivity;
 
-                    if(poolConfig.ClientConnectionTimeout > 0 && lastActivityAgo.TotalSeconds > poolConfig.ClientConnectionTimeout)
+                    if(poolConfig.ClientConnectionTimeout > 0 &&
+                        lastActivityAgo.TotalSeconds > poolConfig.ClientConnectionTimeout)
                     {
                         logger.Info(() => $"[[{client.ConnectionId}] Booting zombie-worker (idle-timeout exceeded)");
                         DisconnectClient(client);
@@ -383,7 +385,7 @@ namespace Miningcore.Blockchain.Cryptonote
 
                     case CryptonoteStratumMethods.KeepAlive:
                         // recognize activity
-                        context.LastActivity = clock.UtcNow;
+                        context.LastActivity = clock.Now;
                         break;
 
                     default:

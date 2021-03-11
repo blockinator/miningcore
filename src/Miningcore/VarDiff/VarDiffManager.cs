@@ -52,7 +52,7 @@ namespace Miningcore.VarDiff
             lock(ctx)
             {
                 // Get Current Time
-                var ts = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() / 1000.0;
+                var ts = DateTimeOffset.Now.ToUnixTimeMilliseconds() / 1000.0;
 
                 // For the first time, won't change diff.
                 if(!ctx.LastTs.HasValue)
@@ -110,7 +110,7 @@ namespace Miningcore.VarDiff
                 if(newDiff < difficulty || newDiff > difficulty)
                 {
                     ctx.LastRtc = ts;
-                    ctx.LastUpdate = clock.UtcNow;
+                    ctx.LastUpdate = clock.Now;
 
                     // Due to change of diff, Buffer needs to be cleared
                     ctx.TimeBuffer = new CircularDoubleBuffer(bufferSize);

@@ -7,12 +7,6 @@
         "logBaseDirectory": "",
         "perPoolLogFile": false
     },
-    "statistics": {
-	"statsUpdateInterval": 60,
-	"hashrateCalculationWindow": 5,
-	"statsCleanupInterval": 48,
-	"statsDBCleanupHistory": 365
-    },
     "banning": {
         "manager": "integrated",
         "banOnJunkReceive": true,
@@ -46,35 +40,15 @@
     "paymentProcessing": {
         "enabled": true,
         "interval": 600,
-        "shareRecoveryFile": "mc-recovered-shares.txt"
-    },
-    "api": {
-        "enabled": true,
-        "ssl": false,
-	    "tls": false,
-        "tlsPfxFile": "",
-        "listenAddress": "127.0.0.1",
-        "port": 4000,
-        "metricsIpWhitelist": ["127.0.0.1"],
-        "rateLimiting": {
-            "disabled": true,
-            "rules": [
-                {
-                    "Endpoint": "*",
-                    "Period": "60s",
-                    "Limit": 1000000
-                }
-            ],
-            "ipWhitelist": []
-        }
+        "shareRecoveryFile": "recovered-shares.txt"
     },
     "pools": [{
-        "id": "dash1",
+        "id": "dash",
         "enabled": true,
         "coin": "dash",
-        "address": "Xc2vm9SfRn8t1hyQgqi8Zrt3oFeGcQtw",
+        "address": "XgmfWd5DXWGcYhxPcDPUJk44Cnh2e8tZk7",
         "rewardRecipients": [{
-            "address": "Xc2vm9SfRn8t1hyQgqi8Zrt3oFeGcQtw",
+            "address": "XgmfWd5DXWGcYhxPcDPUJk44Cnh2e8tZk7",
             "percentage": 0
         }],
         "blockRefreshInterval": 500,

@@ -7,12 +7,6 @@
         "logBaseDirectory": "",
         "perPoolLogFile": false
     },
-    "statistics": {
-	    "statsUpdateInterval": 60,
-	    "hashrateCalculationWindow": 5,
-	    "statsCleanupInterval": 48,
-	    "statsDBCleanupHistory": 365
-    }, 
     "banning": {
         "manager": "integrated",
         "banOnJunkReceive": true,
@@ -48,34 +42,14 @@
         "interval": 600,
         "shareRecoveryFile": "recovered-shares.txt"
     },
-    "api": {
-        "enabled": true,
-        "ssl": false,
-	    "tls": false,
-        "tlsPfxFile": "",
-        "listenAddress": "127.0.0.1",
-        "port": 4000,
-        "metricsIpWhitelist": ["127.0.0.1"],
-        "rateLimiting": {
-            "disabled": true,
-            "rules": [
-                {
-                    "Endpoint": "*",
-                    "Period": "60s",
-                    "Limit": 1000000
-                }
-            ],
-            "ipWhitelist": []
-        }
-    },
     "pools": [{
-        "id": "eth1",
+        "id": "eth",
         "enabled": true,
         "coin": "ethereum",
-        "address": "0xBfD360CDd9014Bc5B348B65cBf79F78381694f4E",
+        "address": "0x0942e9144606ad43f2e61a7ee332fe9914424712",
         "rewardRecipients": [{
                 "type": "op",
-                "address": "0xBfD360CDd9014Bc5B348B65cBf79F78381694f4E",
+                "address": "0x0942e9144606ad43f2e61a7ee332fe9914424712",
                 "percentage": 0
         }],
         "blockRefreshInterval": 500,
@@ -88,17 +62,14 @@
         },
         "ports": {
             "3072": {
+                "listenAddress": "0.0.0.0",
                 "difficulty": 0.1,
                 "varDiff": {
                     "minDiff": 0.05,
-                    "maxDiff": null,
                     "targetTime": 15,
                     "retargetTime": 90,
                     "variancePercent": 30
                 }
-            },
-            "3073": {
-                "difficulty": 5000
             }
         },
         "daemons": [

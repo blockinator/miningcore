@@ -1,3 +1,24 @@
+/*
+Copyright 2017 Coin Foundry (coinfoundry.org)
+Authors: Oliver Weichhold (oliver@weichhold.com)
+         Olaf Wasilewski (olaf.wasilewski@gmx.de)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+associated documentation files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial
+portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
 using System;
 using System.Numerics;
 using System.Text.RegularExpressions;
@@ -18,6 +39,7 @@ namespace Miningcore.Blockchain.Ethereum
         public const string EthereumStratumVersion = "EthereumStratum/1.0.0";
         public const decimal StaticTransactionFeeReserve = 0.0025m; // in ETH
         public const string BlockTypeUncle = "uncle";
+        public static double StratumDiffFactor = 4294901760.0;
 
 #if !DEBUG
         public const int MinPayoutPeerCount = 1;
@@ -32,13 +54,12 @@ namespace Miningcore.Blockchain.Ethereum
         public static readonly Regex WorkerPattern = new Regex("^[0-9a-zA-Z-_]{1,8}$", RegexOptions.Compiled);
 
         public const ulong ByzantiumHardForkHeight = 4370000;
-        public const ulong  ConstantinopleHardForkHeight = 7280000;
         public const decimal HomesteadBlockReward = 5.0m;
         public const decimal ByzantiumBlockReward = 3.0m;
-        public const decimal ConstantinopleReward = 2.0m;
         public const decimal TestnetBlockReward = 3.0m;
         public const decimal ExpanseBlockReward = 8.0m;
         public const decimal EllaismBlockReward = 5.0m;
+        public const decimal JoysBlockReward = 2.0m;
 
         public const int MinConfimations = 16;
     }
@@ -64,7 +85,8 @@ namespace Miningcore.Blockchain.Ethereum
         Ropsten = 3,
         Rinkeby = 4,
         Kovan = 42,
-        Galilei = 7919, // Callisto v3 Testnet
+        Galilei = 7919,
+        Joys = 35855456,
 
         Unknown = -1,
     }
@@ -81,8 +103,9 @@ namespace Miningcore.Blockchain.Ethereum
         Classic,
         Expanse,
         Ellaism,
-        CallistoTestnet, // Callisto (CLO) v3 Testnet
-        Callisto, // Callisto (CLO) v3 Testnet
+        CallistoTestnet,
+        Callisto,
+        Joys,
 
         Unknown = -1,
     }
@@ -98,7 +121,6 @@ namespace Miningcore.Blockchain.Ethereum
         public const string GetAccounts = "eth_accounts";
         public const string GetPeerCount = "net_peerCount";
         public const string GetSyncState = "eth_syncing";
-        public const string GetBlockNumber = "eth_blockNumber";      // MinerNL added
         public const string GetBlockByNumber = "eth_getBlockByNumber";
         public const string GetBlockByHash = "eth_getBlockByHash";
         public const string GetUncleByBlockNumberAndIndex = "eth_getUncleByBlockNumberAndIndex";

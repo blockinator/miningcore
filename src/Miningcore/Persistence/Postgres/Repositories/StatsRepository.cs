@@ -1,6 +1,7 @@
 /*
 Copyright 2017 Coin Foundry (coinfoundry.org)
 Authors: Oliver Weichhold (oliver@weichhold.com)
+         Olaf Wasilewski (olaf.wasilewski@gmx.de)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -53,9 +54,9 @@ namespace Miningcore.Persistence.Postgres.Repositories
 
             var mapped = mapper.Map<Entities.PoolStats>(stats);
 
-            const string query = "INSERT INTO poolstats(poolid, connectedminers, poolhashrate, networkhashrate, " +
+            const string query = "INSERT INTO poolstats(poolid, connectedminers, connectedworkers, poolhashrate, networkhashrate, " +
                 "networkdifficulty, lastnetworkblocktime, blockheight, connectedpeers, sharespersecond, created) " +
-                "VALUES(@poolid, @connectedminers, @poolhashrate, @networkhashrate, @networkdifficulty, " +
+                "VALUES(@poolid, @connectedminers, @connectedworkers, @poolhashrate, @networkhashrate, @networkdifficulty, " +
                 "@lastnetworkblocktime, @blockheight, @connectedpeers, @sharespersecond, @created)";
 
             await con.ExecuteAsync(query, mapped, tx);
@@ -153,8 +154,7 @@ namespace Miningcore.Persistence.Postgres.Repositories
                 var lastUpdate = await con.QuerySingleOrDefaultAsync<DateTime?>(query, new { poolId, miner }, tx);
 
                 // ignore stale minerstats
-                if (lastUpdate.HasValue && (clock.UtcNow - DateTime.SpecifyKind(lastUpdate.Value, DateTimeKind.Utc) > MinerStatsMaxAge))
-
+                if(lastUpdate.HasValue && (clock.Now - DateTime.SpecifyKind(lastUpdate.Value, DateTimeKind.Utc) > MinerStatsMaxAge))
                     lastUpdate = null;
 
                 if(lastUpdate.HasValue)
@@ -321,20 +321,20 @@ namespace Miningcore.Persistence.Postgres.Repositories
             const string query = "WITH tmp AS " +
                 "( " +
                 "	SELECT  " +
-                "		ms.miner,  " +
+                 "		ms.miner,  " +
+                "		ms.id,  " +
                 "		ms.hashrate,  " +
                 "		ms.sharespersecond,  " +
                 "		ROW_NUMBER() OVER(PARTITION BY ms.miner ORDER BY ms.hashrate DESC) AS rk  " +
-                "	FROM (SELECT miner, SUM(hashrate) AS hashrate, SUM(sharespersecond) AS sharespersecond " +
+                "	FROM (SELECT  miner, id , SUM(hashrate) AS hashrate, SUM(sharespersecond) AS sharespersecond " +
                 "       FROM minerstats " +
-                "       WHERE poolid = @poolid AND created >= @from GROUP BY miner, created) ms " +
+                "       WHERE poolid = @poolid AND created >= @from GROUP BY id, created) ms " +
                 ") " +
-                "SELECT t.miner, t.hashrate, t.sharespersecond " +
+                "SELECT t.id, t.miner, t.hashrate, t.sharespersecond " +
                 "FROM tmp t " +
                 "WHERE t.rk = 1 " +
                 "ORDER by t.hashrate DESC " +
                 "OFFSET @offset FETCH NEXT (@pageSize) ROWS ONLY";
-
             return (await con.QueryAsync<Entities.MinerWorkerPerformanceStats>(query, new { poolId, from, offset = page * pageSize, pageSize }))
                 .Select(mapper.Map<MinerWorkerPerformanceStats>)
                 .ToArray();

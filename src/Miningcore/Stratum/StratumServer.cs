@@ -1,6 +1,7 @@
 /*
 Copyright 2017 Coin Foundry (coinfoundry.org)
 Authors: Oliver Weichhold (oliver@weichhold.com)
+         Olaf Wasilewski (olaf.wasilewski@gmx.de)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -43,6 +44,7 @@ using Miningcore.Util;
 using Newtonsoft.Json;
 using NLog;
 using Contract = Miningcore.Contracts.Contract;
+using Miningcore.Blockchain.Equihash;
 
 namespace Miningcore.Stratum
 {
@@ -247,7 +249,7 @@ namespace Miningcore.Stratum
 
             logger.Debug(() => $"[{client.ConnectionId}] Dispatching request '{request.Method}' [{request.Id}]");
 
-            await OnRequestAsync(client, new Timestamped<JsonRpcRequest>(request, clock.UtcNow), ct);
+            await OnRequestAsync(client, new Timestamped<JsonRpcRequest>(request, clock.Now), ct);
         }
 
         protected virtual void OnClientError(StratumClient client, Exception ex)
